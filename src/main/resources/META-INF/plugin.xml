@@ -24,4 +24,12 @@
     <extensions defaultExtensionNs="com.intellij">
 
     </extensions>
+
+    <actions>
+        <action icon="com.string.wizard.stringwizard.ui.Icons.KabanSmall" id="com.string.wizard.stringwizard.action.StringCopyAction"
+                class="com.string.wizard.stringwizard.action.StringCopyAction" text="Sample action" description="sample">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
+
 </idea-plugin>
