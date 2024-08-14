@@ -4,5 +4,5 @@ import com.intellij.openapi.util.IconLoader
 
 object Icons {
     @JvmField
-    val KabanSmall = IconLoader.getIcon("META-INF/icons/kabanIconSmall.svg", javaClass)
+    val KabanSmall = IconLoader.getIcon("icons/kabanIconSmall.svg", javaClass)
 }
