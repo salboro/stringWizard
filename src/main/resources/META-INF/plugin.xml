@@ -35,15 +35,14 @@
             <add-to-group
                 group-id="ToolsMenu"
                 anchor="after"
-                relative-to-action="org.intellij.sdk.action.GroupPopDialogAction"/>
+                relative-to-action="StringCopyAction"/>
 
             <action
                 icon="AllIcons.Actions.Copy"
-                id="org.intellij.sdk.action.GroupPopDialogAction"
+                id="StringCopyAction"
                 class="com.string.wizard.stringwizard.action.StringCopyAction"
                 text="String Copy"
-                description="Copy string for all languages from one module to another">
-            </action>
+                description="Copy string for all languages from one module to another" />
         </group>
     </actions>
 
