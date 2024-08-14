@@ -26,10 +26,25 @@
     </extensions>
 
     <actions>
-        <action icon="com.string.wizard.stringwizard.ui.Icons.KabanSmall" id="com.string.wizard.stringwizard.action.StringCopyAction"
-                class="com.string.wizard.stringwizard.action.StringCopyAction" text="Sample action" description="sample">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
+        <group
+            id="org.intellij.sdk.action.GroupedActions"
+            text="Kaban Wizard"
+            popup="true"
+            icon="com.string.wizard.stringwizard.ui.Icons.KabanSmall">
+
+            <add-to-group
+                group-id="ToolsMenu"
+                anchor="after"
+                relative-to-action="org.intellij.sdk.action.GroupPopDialogAction"/>
+
+            <action
+                icon="AllIcons.Actions.Copy"
+                id="org.intellij.sdk.action.GroupPopDialogAction"
+                class="com.string.wizard.stringwizard.action.StringCopyAction"
+                text="String Copy"
+                description="Copy string for all languages from one module to another">
+            </action>
+        </group>
     </actions>
 
 </idea-plugin>
