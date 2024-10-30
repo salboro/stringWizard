@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.ui.Messages
 import com.string.wizard.stringwizard.ui.Icons
+import com.string.wizard.stringwizard.ui.StringCopyDialog
 
 
 class StringCopyAction : AnAction() {
@@ -12,7 +13,7 @@ class StringCopyAction : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
 
         // Using the event, create and show a dialog
-        val currentProject = event.project
+        val currentProject = event.project ?: error("No project")
         var message = "${event.presentation.text} Selected!"
 
         // If an element is selected in the editor, add info about it.
@@ -21,10 +22,6 @@ class StringCopyAction : AnAction() {
             message += "\nSelected Element: $selectedElement"
         }
         val title = event.presentation.description
-        Messages.showMessageDialog(
-                currentProject,
-                message,
-                title,
-                Icons.KabanSmall)
+       StringCopyDialog(currentProject).show()
     }
 }
