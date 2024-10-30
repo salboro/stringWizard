@@ -5,16 +5,14 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.ui.JBPopupMenu
-import com.intellij.ui.SearchTextField
-import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextArea
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import org.jdesktop.swingx.VerticalLayout
-import javax.swing.DefaultListModel
 import javax.swing.JButton
 import javax.swing.JComponent
+import javax.swing.JPanel
 
 
 class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDialogUi {
@@ -28,7 +26,9 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
     private val textArea = JBTextArea("Hello")
     private val dialogPanel = DialogPanel()
 
-    private val modulesButton = JButton("Choose module", AllIcons.Actions.GroupByModule)
+    private val modulePanel = JPanel()
+    private val chosenModuleLabel = JBLabel("Chosen module: ")
+    private val moduleButton = JButton("", AllIcons.General.Inline_edit)
 
     init {
         title = TITLE
@@ -38,13 +38,18 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
     override fun createCenterPanel(): JComponent {
         dialogPanel.layout = VerticalLayout()
 
-        modulesButton.addActionListener {
+        modulePanel.apply {
+            add(chosenModuleLabel)
+            add(moduleButton)
+        }
+
+        moduleButton.addActionListener {
             presenter.onModulesChooserClick()
         }
 
         dialogPanel.apply {
             add(textArea)
-            add(modulesButton)
+            add(modulePanel)
         }
 
         return dialogPanel
@@ -54,13 +59,21 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
         createSearchPopup(modules).show()
     }
 
-    private fun createSearchPopup(modules: List<Module>): DialogWrapper =
+    private fun createSearchPopup(modules: List<Module>): SearchableListDialog<Module> =
             SearchableListDialog(
                     parent = dialogPanel,
                     label = "Search modules",
                     items = modules,
                     searchBy = { it.name },
-                    itemSelectionListener = { textArea.text = it.name },
+                    itemSelectionListener = presenter::selectModule,
                     itemRenderer = ModuleListRenderer()
             )
+
+    override fun changeModuleButton(text: String, state: ButtonState) {
+        moduleButton.text = text
+        moduleButton.icon = when (state) {
+            ButtonState.EMPTY  -> AllIcons.General.Add
+            ButtonState.FILLED -> AllIcons.Nodes.Module
+        }
+    }
 }

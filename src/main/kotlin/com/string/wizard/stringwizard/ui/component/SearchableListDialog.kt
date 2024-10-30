@@ -1,5 +1,6 @@
 package com.string.wizard.stringwizard.ui.component
 
+import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.SearchTextField
 import com.intellij.ui.components.JBLabel
@@ -36,7 +37,7 @@ class SearchableListDialog<T>(
         const val DOUBLE = 2
     }
 
-    private val mainPanel = JPanel(BorderLayout())
+    private val mainPanel = DialogPanel(BorderLayout())
 
     private val popupLabel = JBLabel(label)
     private val listModel = DefaultListModel<T>()
