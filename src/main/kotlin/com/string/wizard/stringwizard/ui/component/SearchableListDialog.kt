@@ -20,7 +20,6 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.event.ListSelectionEvent
 
-
 class SearchableListDialog<T>(
         parent: Component,
         label: String,
@@ -75,7 +74,6 @@ class SearchableListDialog<T>(
     }
 
     init {
-        this.setUndecorated(true)
         init()
     }
 
