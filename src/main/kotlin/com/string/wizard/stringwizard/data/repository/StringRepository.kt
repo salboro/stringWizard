@@ -35,7 +35,7 @@ class StringRepository {
     private fun getResourcesStringName(from: String): String =
             from
                     .substringAfter("<string name=\"")
-                    .substringBefore("\n")
+                    .substringBefore("\"")
 
     private fun getResourcesStringValue(from: String): String =
             from
