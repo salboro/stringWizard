@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.ui
+package com.string.wizard.stringwizard.ui.stringsort
 
 import com.android.tools.idea.projectsystem.isMainModule
 import com.android.tools.idea.projectsystem.isUnitTestModule

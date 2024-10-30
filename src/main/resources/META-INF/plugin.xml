@@ -31,7 +31,7 @@
             id="org.intellij.sdk.action.GroupedActions"
             text="Kaban Wizard"
             popup="true"
-            icon="com.string.wizard.stringwizard.ui.Icons.KabanSmall">
+            icon="com.string.wizard.stringwizard.ui.resources.Icons.KabanSmall">
 
             <add-to-group
                 group-id="ToolsMenu"

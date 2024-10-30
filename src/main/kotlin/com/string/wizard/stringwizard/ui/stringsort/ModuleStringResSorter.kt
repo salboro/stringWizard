@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.ui
+package com.string.wizard.stringwizard.ui.stringsort
 
 import com.string.wizard.stringwizard.domain.usecase.GetResPathUseCase
 import java.io.File

@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.ui
+package com.string.wizard.stringwizard.ui.component
 
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.SearchTextField

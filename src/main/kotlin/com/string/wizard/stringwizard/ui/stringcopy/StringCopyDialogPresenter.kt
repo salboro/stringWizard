@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.ui
+package com.string.wizard.stringwizard.ui.stringcopy
 
 import com.android.tools.idea.projectsystem.isMainModule
 import com.android.tools.idea.projectsystem.isUnitTestModule
@@ -12,15 +12,6 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, private val 
             .toList()
             .filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
             .sortedBy { it.name }
-
-    fun onClick() {
-//        ui.setModules(project.modules.toList())
-    }
-
-    fun onCreate() {
-//        ui.setModules(filteredModules)
-//        ui.setModules(emptyList())
-    }
 
     fun onModulesChooserClick() {
         ui.showModulesSelector(filteredModules)

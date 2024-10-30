@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.ui
+package com.string.wizard.stringwizard.ui.resources
 
 import com.intellij.openapi.util.IconLoader
 

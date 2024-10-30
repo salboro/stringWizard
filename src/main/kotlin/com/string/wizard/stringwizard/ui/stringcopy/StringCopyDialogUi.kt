@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.ui
+package com.string.wizard.stringwizard.ui.stringcopy
 
 import com.intellij.openapi.module.Module
 

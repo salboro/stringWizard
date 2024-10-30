@@ -3,9 +3,7 @@ package com.string.wizard.stringwizard.action
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.ui.Messages
-import com.string.wizard.stringwizard.ui.Icons
-import com.string.wizard.stringwizard.ui.StringCopyDialog
+import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialog
 
 
 class StringCopyAction : AnAction() {
