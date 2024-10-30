@@ -5,10 +5,14 @@ import com.android.tools.idea.projectsystem.isUnitTestModule
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
+import com.string.wizard.stringwizard.data.entity.ResourceString
+import com.string.wizard.stringwizard.data.repository.StringRepository
 import org.jetbrains.kotlin.idea.base.util.isAndroidModule
 
 
 class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Project) {
+
+    private val stringRepository = StringRepository()
 
     private val filteredModules = project.modules
             .toList()
@@ -16,6 +20,8 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
             .sortedBy { it.name }
 
     private var selectedModule: Module? = null
+
+    private var selectedString: ResourceString? = null
 
     fun onModulesChooserClick() {
         ui.showModulesSelector(filteredModules)
@@ -25,5 +31,19 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
         selectedModule = module
 
         ui.changeModuleButton(module.name, ButtonState.FILLED)
+        ui.changeStringButton("", ButtonState.EMPTY)
+    }
+
+    fun onStringSelectionClick() {
+        val module = selectedModule ?: return
+        val strings = stringRepository.getStringResList(module).ifEmpty { listOf(ResourceString("awd", "awd", "awd")) }
+
+        ui.showStringSelector(strings)
+    }
+
+    fun selectString(string: ResourceString) {
+        selectedString = string
+
+        ui.changeStringButton("name: ${string.name}   ||   value: ${string.value}", ButtonState.FILLED)
     }
 }
