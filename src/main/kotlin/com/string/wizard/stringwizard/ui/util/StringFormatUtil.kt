@@ -1,4 +1,6 @@
 package com.string.wizard.stringwizard.ui.util
 
-fun formatResourceString(name: String, value: String) =
-        "name: $name       value: $value"
+import com.string.wizard.stringwizard.data.entity.Locale
+
+fun formatResourceString(name: String, value: String, locale: Locale) =
+        "name: $name       value: $value       locale: ${locale.name}"

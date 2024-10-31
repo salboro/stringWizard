@@ -1,14 +1,18 @@
 package com.string.wizard.stringwizard.ui.stringcopy
 
+import com.intellij.collaboration.ui.CollaborationToolsUIUtil.defaultButton
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
+import com.intellij.util.ui.UIUtil.FontColor
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
@@ -19,14 +23,23 @@ import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
+import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.FlowLayout
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JSeparator
 
-
-class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDialogUi {
+class StringCopyDialog(
+        project: Project
+) : DialogWrapper(
+        project,
+        null,
+        false,
+        IdeModalityType.IDE,
+        false
+), StringCopyDialogUi {
 
     private companion object {
 
@@ -37,26 +50,33 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
 
     private val presenter = StringCopyDialogPresenter(this, project)
 
-    private val dialogPanel = DialogPanel()
+    private val dialogPanel = DialogPanel(BorderLayout())
+    private val mainPanel = JPanel(VerticalLayout())
 
     private val sourceLabel = JBLabel("Source")
     private val targetLabel = JBLabel("Target")
 
-    private val sourceModulePanel = JPanel()
+    private val sourceModulePanel = JPanel(HorizontalLayout())
     private val chosenSourceModuleLabel = JBLabel("Chosen module: ")
     private val sourceModuleButton = JButton("", AllIcons.General.Add)
 
-    private val sourceStringPanel = JPanel()
+    private val sourceStringPanel = JPanel(HorizontalLayout())
     private val chosenSourceStringLabel = JBLabel("Chosen string from resources: ")
     private val sourceStringButton = JButton("", AllIcons.General.Add)
 
-    private val targetModulePanel = JPanel()
+    private val targetModulePanel = JPanel(HorizontalLayout())
     private val chosenTargetModuleLabel = JBLabel("Chosen module: ")
     private val targetModuleButton = JButton("", AllIcons.General.Add)
 
-    private val newStringPanel = JPanel()
+    private val newStringPanel = JPanel(HorizontalLayout())
     private val newStringLabel = JBLabel("Input new string name: ")
     private val newStringInput = JBTextField(NEW_STRING_DEFAULT_TEXT, 50)
+
+    private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
+    private val cancelButton = JButton("Cancel")
+    private val okButton = JButton("OK").defaultButton()
+    private val copyButton = JButton("Copy").defaultButton()
+    private val attentionText = JBLabel("Fill all fields before copy!")
 
     init {
         title = TITLE
@@ -64,8 +84,6 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
     }
 
     override fun createCenterPanel(): JComponent {
-        dialogPanel.layout = VerticalLayout()
-
         sourceLabel.apply {
             border = Borders.empty(BORDER)
             horizontalAlignment = JBLabel.CENTER
@@ -79,13 +97,11 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
         }
 
         sourceModulePanel.apply {
-            layout = HorizontalLayout()
             add(chosenSourceModuleLabel)
             add(sourceModuleButton)
         }
 
         sourceStringPanel.apply {
-            layout = HorizontalLayout()
             add(chosenSourceStringLabel)
             add(sourceStringButton)
             border = Borders.emptyBottom(BORDER)
@@ -100,7 +116,6 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
         }
 
         targetModulePanel.apply {
-            layout = HorizontalLayout()
             add(chosenTargetModuleLabel)
             add(targetModuleButton)
         }
@@ -114,14 +129,38 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
         }
 
         newStringPanel.apply {
-            layout = HorizontalLayout()
+            border = Borders.emptyBottom(BORDER)
             add(newStringLabel)
             add(newStringInput)
         }
 
-        dialogPanel.apply {
-            preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
+        copyButton.apply {
+            isEnabled = false
+            addActionListener { presenter.copy(newStringInput.text) }
+        }
 
+        cancelButton.apply {
+            addActionListener { super.doCancelAction() }
+        }
+
+        okButton.apply {
+           	addActionListener { super.doOKAction() }
+        }
+
+        attentionText.apply {
+            border = Borders.emptyTop(BORDER)
+            fontColor = FontColor.BRIGHTER
+            foreground = JBColor.RED
+            font = JBFont.regular().asBold()
+        }
+
+        buttonsPanel.apply {
+            add(cancelButton)
+            add(copyButton)
+            add(okButton)
+        }
+
+        mainPanel.apply {
             add(sourceLabel)
             add(sourceModulePanel)
             add(sourceStringPanel)
@@ -129,6 +168,15 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
             add(targetLabel)
             add(targetModulePanel)
             add(newStringPanel)
+            add(JSeparator())
+            add(attentionText)
+        }
+
+        dialogPanel.apply {
+            preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
+
+            add(mainPanel, BorderLayout.CENTER)
+            add(buttonsPanel, BorderLayout.SOUTH)
         }
 
         return dialogPanel
@@ -194,5 +242,9 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
             isEnabled = false
             text = NEW_STRING_DEFAULT_TEXT
         }
+    }
+
+    override fun changeCopyButtonEnabled(enabled: Boolean) {
+        copyButton.isEnabled = enabled
     }
 }

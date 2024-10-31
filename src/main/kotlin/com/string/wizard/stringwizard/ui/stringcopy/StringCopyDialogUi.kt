@@ -21,4 +21,6 @@ interface StringCopyDialogUi {
     fun changeNewStringName(text: String)
 
     fun disableNewStringName()
+
+    fun changeCopyButtonEnabled(enabled: Boolean)
 }

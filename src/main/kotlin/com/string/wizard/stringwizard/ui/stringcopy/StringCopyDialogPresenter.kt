@@ -7,8 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.repository.StringRepository
-import com.string.wizard.stringwizard.ui.util.formatResourceString
 import com.string.wizard.stringwizard.ui.ButtonState
+import com.string.wizard.stringwizard.ui.util.formatResourceString
 import org.jetbrains.kotlin.idea.base.util.isAndroidModule
 
 
@@ -17,11 +17,11 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
     private val stringRepository = StringRepository()
 
     private val filteredModules = project.modules
-            .toList()
-            .filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
-            .sortedBy { it.name }
+        .toList()
+        .filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
+        .sortedBy { it.name }
 
-    private var selectedModule: Module? = null
+    private var selectedSourceModule: Module? = null
     private var selectedTargetModule: Module? = null
 
     private var selectedString: ResourceString? = null
@@ -31,27 +31,34 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
     }
 
     fun onTargetModuleSelectorClick() {
-        val targetModuleList = selectedModule?.let { filteredModules - it } ?: filteredModules
+        val targetModuleList = selectedSourceModule?.let { filteredModules - it } ?: filteredModules
         ui.showTargetModuleSelector(targetModuleList)
     }
 
     fun selectModule(module: Module) {
-        selectedModule = module
+        selectedSourceModule = module
+        selectedString = null
 
         ui.changeSourceModuleButton(module.name, ButtonState.FILLED)
         ui.changeSourceStringButton(text = "", ButtonState.EMPTY)
         ui.disableNewStringName()
+        ui.changeCopyButtonEnabled(false)
     }
 
     fun selectTargetModule(module: Module) {
         selectedTargetModule = module
 
         ui.changeTargetModuleButton(module.name, ButtonState.FILLED)
+        if (selectedString != null) {
+            ui.changeCopyButtonEnabled(true)
+        }
     }
 
     fun onStringSelectionClick() {
-        val module = selectedModule ?: return
-        val strings = stringRepository.getStringResList(module).ifEmpty { listOf(ResourceString("awd", "awd", "awd")) }
+        val module = selectedSourceModule ?: error("Choose source module first!")
+        val strings = stringRepository.getStringResList(module).ifEmpty {
+            throw IllegalArgumentException("No strings in module ${selectedSourceModule?.name}")
+        }
 
         ui.showSourceStringSelector(strings)
     }
@@ -59,7 +66,22 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
     fun selectString(string: ResourceString) {
         selectedString = string
 
-        ui.changeSourceStringButton(formatResourceString(string.name, string.value), ButtonState.FILLED)
+        ui.changeSourceStringButton(formatResourceString(string.name, string.value, string.locale), ButtonState.FILLED)
         ui.changeNewStringName(string.name)
+
+        if (selectedTargetModule != null) {
+            ui.changeCopyButtonEnabled(true)
+        }
+    }
+
+    fun copy(newStringName: String) {
+        if (newStringName.isNotBlank() && selectedTargetModule != null && selectedSourceModule != null && selectedString != null) {
+                stringRepository.copyString(
+                    requireNotNull(selectedSourceModule),
+                    requireNotNull(selectedTargetModule),
+                    requireNotNull(selectedString?.name),
+                    newStringName
+                )
+        }
     }
 }

@@ -113,12 +113,6 @@ class SearchableListDialog<T>(
         return mainPanel
     }
 
-    override fun doOKAction() {
-        list.selectedValue?.let { itemSelectionListener(it) }
-
-        super.doOKAction()
-    }
-
     private fun filterItems(query: String) {
         if (query.isNotBlank()) {
             val filteredItems = items.filter { searchBy(it).contains(query) }
@@ -131,10 +125,8 @@ class SearchableListDialog<T>(
     }
 
     override fun doOKAction() {
-        val selectedIndex = list.selectedIndex
-        if (selectedIndex != -1) {
-            itemSelectionListener(listModel.get(selectedIndex))
-            super.doOKAction()
-        }
+        list.selectedValue?.let { itemSelectionListener(it) }
+
+        super.doOKAction()
     }
 }

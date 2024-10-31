@@ -9,6 +9,7 @@ import javax.swing.JList
 import javax.swing.ListCellRenderer
 
 class StringListRenderer : JBLabel(), ListCellRenderer<ResourceString> {
+
     override fun getListCellRendererComponent(
             list: JList<out ResourceString>?,
             value: ResourceString?,
@@ -16,7 +17,11 @@ class StringListRenderer : JBLabel(), ListCellRenderer<ResourceString> {
             isSelected: Boolean,
             cellHasFocus: Boolean
     ): Component {
-        text = formatResourceString(name = value?.name ?: "unknown", value = value?.value ?: "unknown")
+        text = if (value != null) {
+            formatResourceString(name = value.name, value = value.value, locale = value.locale)
+        } else {
+            "Invalid"
+        }
         icon = AllIcons.FileTypes.Xml
 
         return this
