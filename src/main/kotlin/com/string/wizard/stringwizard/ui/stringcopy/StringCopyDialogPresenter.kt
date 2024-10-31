@@ -25,7 +25,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
     private var selectedString: ResourceString? = null
 
     fun onModulesChooserClick() {
-        ui.showModulesSelector(filteredModules)
+        ui.showSourceModulesSelector(filteredModules)
     }
 
     fun onTargetModuleSelectorClick() {
@@ -37,7 +37,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
         selectedModule = module
 
         ui.changeSourceModuleButton(module.name, ButtonState.FILLED)
-        ui.changeStringButton("", ButtonState.EMPTY)
+        ui.changeSourceStringButton("", ButtonState.EMPTY)
     }
 
     fun selectTargetModule(module: Module) {
@@ -50,12 +50,12 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
         val module = selectedModule ?: return
         val strings = stringRepository.getStringResList(module).ifEmpty { listOf(ResourceString("awd", "awd", "awd")) }
 
-        ui.showStringSelector(strings)
+        ui.showSourceStringSelector(strings)
     }
 
     fun selectString(string: ResourceString) {
         selectedString = string
 
-        ui.changeStringButton("name: ${string.name}   ||   value: ${string.value}", ButtonState.FILLED)
+        ui.changeSourceStringButton("name: ${string.name}   ||   value: ${string.value}", ButtonState.FILLED)
     }
 }

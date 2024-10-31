@@ -36,13 +36,13 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
     private val sourceLabel = JBLabel("Source")
     private val targetLabel = JBLabel("Target")
 
-    private val modulePanel = JPanel()
-    private val chosenModuleLabel = JBLabel("Chosen module: ")
-    private val moduleButton = JButton("", AllIcons.General.Add)
+    private val sourceModulePanel = JPanel()
+    private val chosenSourceModuleLabel = JBLabel("Chosen module: ")
+    private val sourceModuleButton = JButton("", AllIcons.General.Add)
 
-    private val stringPanel = JPanel()
-    private val chosenStringLabel = JBLabel("Chosen string from resources: ")
-    private val stringButton = JButton("", AllIcons.General.Add)
+    private val sourceStringPanel = JPanel()
+    private val chosenSourceStringLabel = JBLabel("Chosen string from resources: ")
+    private val sourceStringButton = JButton("", AllIcons.General.Add)
 
     private val targetModulePanel = JPanel()
     private val chosenTargetModuleLabel = JBLabel("Chosen module: ")
@@ -68,24 +68,24 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
             font = JBFont.h4()
         }
 
-        modulePanel.apply {
+        sourceModulePanel.apply {
             layout = HorizontalLayout()
-            add(chosenModuleLabel)
-            add(moduleButton)
+            add(chosenSourceModuleLabel)
+            add(sourceModuleButton)
         }
 
-        stringPanel.apply {
+        sourceStringPanel.apply {
             layout = HorizontalLayout()
-            add(chosenStringLabel)
-            add(stringButton)
+            add(chosenSourceStringLabel)
+            add(sourceStringButton)
             border = Borders.emptyBottom(BORDER)
         }
 
-        moduleButton.addActionListener {
+        sourceModuleButton.addActionListener {
             presenter.onModulesChooserClick()
         }
 
-        stringButton.addActionListener {
+        sourceStringButton.addActionListener {
             presenter.onStringSelectionClick()
         }
 
@@ -103,8 +103,8 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
             preferredSize = Dimension(500, 300)
 
             add(sourceLabel)
-            add(modulePanel)
-            add(stringPanel)
+            add(sourceModulePanel)
+            add(sourceStringPanel)
             add(JSeparator())
             add(targetLabel)
             add(targetModulePanel)
@@ -113,15 +113,15 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
         return dialogPanel
     }
 
-    override fun showModulesSelector(modules: List<Module>) {
+    override fun showSourceModulesSelector(modules: List<Module>) {
         createModuleSearchDialog(modules, presenter::selectModule).show()
     }
 
     override fun changeSourceModuleButton(text: String, state: ButtonState) {
-        moduleButton.changeModuleButton(text, state)
+        sourceModuleButton.changeModuleButton(text, state)
     }
 
-    override fun showStringSelector(strings: List<ResourceString>) {
+    override fun showSourceStringSelector(strings: List<ResourceString>) {
         createStringSelectorDialog(strings).show()
     }
 
@@ -135,9 +135,9 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
                     itemRenderer = StringListRenderer(),
             )
 
-    override fun changeStringButton(text: String, state: ButtonState) {
-        stringButton.text = text
-        stringButton.icon = when (state) {
+    override fun changeSourceStringButton(text: String, state: ButtonState) {
+        sourceStringButton.text = text
+        sourceStringButton.icon = when (state) {
             ButtonState.EMPTY  -> AllIcons.General.Add
             ButtonState.FILLED -> AllIcons.FileTypes.Xml
         }

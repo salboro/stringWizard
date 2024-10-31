@@ -5,7 +5,7 @@ import com.string.wizard.stringwizard.data.entity.ResourceString
 
 interface StringCopyDialogUi {
 
-    fun showModulesSelector(modules: List<Module>)
+    fun showSourceModulesSelector(modules: List<Module>)
 
     fun showTargetModuleSelector(modules: List<Module>)
 
@@ -13,7 +13,7 @@ interface StringCopyDialogUi {
 
     fun changeTargetModuleButton(text: String, state: ButtonState)
 
-    fun showStringSelector(strings: List<ResourceString>)
+    fun showSourceStringSelector(strings: List<ResourceString>)
 
-    fun changeStringButton(text: String, state: ButtonState)
+    fun changeSourceStringButton(text: String, state: ButtonState)
 }
