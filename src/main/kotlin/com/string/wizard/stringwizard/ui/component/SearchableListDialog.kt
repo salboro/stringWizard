@@ -18,7 +18,6 @@ import java.awt.event.MouseListener
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
-import javax.swing.event.ListSelectionEvent
 
 class SearchableListDialog<T>(
         parent: Component,
@@ -81,7 +80,6 @@ class SearchableListDialog<T>(
         list.apply {
             selectionMode = ListSelectionModel.SINGLE_SELECTION
             border = Borders.empty(BORDER)
-            addListSelectionListener(::selectItem)
             addMouseListener(doubleClickListener)
             itemRenderer?.let { this.cellRenderer = it }
         }
@@ -115,8 +113,10 @@ class SearchableListDialog<T>(
         return mainPanel
     }
 
-    private fun selectItem(event: ListSelectionEvent) {
-        itemSelectionListener(listModel.get(event.firstIndex))
+    override fun doOKAction() {
+        list.selectedValue?.let { itemSelectionListener(it) }
+
+        super.doOKAction()
     }
 
     private fun filterItems(query: String) {
