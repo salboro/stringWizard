@@ -93,7 +93,10 @@ class SearchableListDialog<T>(
             font = JBFont.h4()
         }
 
-        search.addDocumentListener(searchDocumentListener)
+        search.apply {
+            border = Borders.emptyBottom(BORDER)
+            addDocumentListener(searchDocumentListener)
+        }
 
         listModel.addAll(items)
 

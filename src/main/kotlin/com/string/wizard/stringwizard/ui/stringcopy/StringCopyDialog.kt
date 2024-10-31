@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
 import com.string.wizard.stringwizard.data.entity.ResourceString
@@ -31,6 +32,7 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
 
         const val TITLE = "Copy string"
         const val BORDER = 10
+        const val NEW_STRING_DEFAULT_TEXT = "Choose source string first!"
     }
 
     private val presenter = StringCopyDialogPresenter(this, project)
@@ -51,6 +53,10 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
     private val targetModulePanel = JPanel()
     private val chosenTargetModuleLabel = JBLabel("Chosen module: ")
     private val targetModuleButton = JButton("", AllIcons.General.Add)
+
+    private val newStringPanel = JPanel()
+    private val newStringLabel = JBLabel("Input new string name: ")
+    private val newStringInput = JBTextField(NEW_STRING_DEFAULT_TEXT, 50)
 
     init {
         title = TITLE
@@ -103,6 +109,16 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
             presenter.onTargetModuleSelectorClick()
         }
 
+        newStringInput.apply {
+            isEnabled = false
+        }
+
+        newStringPanel.apply {
+            layout = HorizontalLayout()
+            add(newStringLabel)
+            add(newStringInput)
+        }
+
         dialogPanel.apply {
             preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
 
@@ -112,6 +128,7 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
             add(JSeparator())
             add(targetLabel)
             add(targetModulePanel)
+            add(newStringPanel)
         }
 
         return dialogPanel
@@ -142,7 +159,7 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
     override fun changeSourceStringButton(text: String, state: ButtonState) {
         sourceStringButton.text = text
         sourceStringButton.icon = when (state) {
-            ButtonState.EMPTY -> AllIcons.General.Add
+            ButtonState.EMPTY  -> AllIcons.General.Add
             ButtonState.FILLED -> AllIcons.FileTypes.Xml
         }
     }
@@ -163,5 +180,19 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
 
     override fun changeTargetModuleButton(text: String, state: ButtonState) {
         targetModuleButton.changeModuleButton(text, state)
+    }
+
+    override fun changeNewStringName(text: String) {
+        newStringInput.apply {
+            isEnabled = true
+            this.text = text
+        }
+    }
+
+    override fun disableNewStringName() {
+        newStringInput.apply {
+            isEnabled = false
+            text = NEW_STRING_DEFAULT_TEXT
+        }
     }
 }

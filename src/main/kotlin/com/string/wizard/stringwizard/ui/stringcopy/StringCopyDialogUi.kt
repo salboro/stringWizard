@@ -17,4 +17,8 @@ interface StringCopyDialogUi {
     fun showSourceStringSelector(strings: List<ResourceString>)
 
     fun changeSourceStringButton(text: String, state: ButtonState)
+
+    fun changeNewStringName(text: String)
+
+    fun disableNewStringName()
 }

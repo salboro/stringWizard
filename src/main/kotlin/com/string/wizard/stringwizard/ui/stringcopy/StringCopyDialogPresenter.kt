@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.repository.StringRepository
+import com.string.wizard.stringwizard.ui.util.formatResourceString
 import com.string.wizard.stringwizard.ui.ButtonState
 import org.jetbrains.kotlin.idea.base.util.isAndroidModule
 
@@ -38,7 +39,8 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
         selectedModule = module
 
         ui.changeSourceModuleButton(module.name, ButtonState.FILLED)
-        ui.changeSourceStringButton("", ButtonState.EMPTY)
+        ui.changeSourceStringButton(text = "", ButtonState.EMPTY)
+        ui.disableNewStringName()
     }
 
     fun selectTargetModule(module: Module) {
@@ -57,6 +59,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
     fun selectString(string: ResourceString) {
         selectedString = string
 
-        ui.changeSourceStringButton("name: ${string.name}   ||   value: ${string.value}", ButtonState.FILLED)
+        ui.changeSourceStringButton(formatResourceString(string.name, string.value), ButtonState.FILLED)
+        ui.changeNewStringName(string.name)
     }
 }
