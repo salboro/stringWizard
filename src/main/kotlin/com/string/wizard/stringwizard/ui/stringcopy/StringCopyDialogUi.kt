@@ -7,7 +7,11 @@ interface StringCopyDialogUi {
 
     fun showModulesSelector(modules: List<Module>)
 
-    fun changeModuleButton(text: String, state: ButtonState)
+    fun showTargetModuleSelector(modules: List<Module>)
+
+    fun changeSourceModuleButton(text: String, state: ButtonState)
+
+    fun changeTargetModuleButton(text: String, state: ButtonState)
 
     fun showStringSelector(strings: List<ResourceString>)
 

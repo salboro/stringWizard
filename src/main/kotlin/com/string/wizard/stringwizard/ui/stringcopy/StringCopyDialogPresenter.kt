@@ -20,6 +20,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
             .sortedBy { it.name }
 
     private var selectedModule: Module? = null
+    private var selectedTargetModule: Module? = null
 
     private var selectedString: ResourceString? = null
 
@@ -27,11 +28,22 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
         ui.showModulesSelector(filteredModules)
     }
 
+    fun onTargetModuleSelectorClick() {
+        val targetModuleList = selectedModule?.let { filteredModules - it } ?: filteredModules
+        ui.showTargetModuleSelector(targetModuleList)
+    }
+
     fun selectModule(module: Module) {
         selectedModule = module
 
-        ui.changeModuleButton(module.name, ButtonState.FILLED)
+        ui.changeSourceModuleButton(module.name, ButtonState.FILLED)
         ui.changeStringButton("", ButtonState.EMPTY)
+    }
+
+    fun selectTargetModule(module: Module) {
+        selectedTargetModule = module
+
+        ui.changeTargetModuleButton(module.name, ButtonState.FILLED)
     }
 
     fun onStringSelectionClick() {
