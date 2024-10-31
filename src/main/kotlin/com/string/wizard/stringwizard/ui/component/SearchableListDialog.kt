@@ -126,4 +126,12 @@ class SearchableListDialog<T>(
             listModel.addAll(items)
         }
     }
+
+    override fun doOKAction() {
+        val selectedIndex = list.selectedIndex
+        if (selectedIndex != -1) {
+            itemSelectionListener(listModel.get(selectedIndex))
+            super.doOKAction()
+        }
+    }
 }

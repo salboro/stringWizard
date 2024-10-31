@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.repository.StringRepository
+import com.string.wizard.stringwizard.ui.ButtonState
 import org.jetbrains.kotlin.idea.base.util.isAndroidModule
 
 

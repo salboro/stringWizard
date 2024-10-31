@@ -12,9 +12,6 @@ class ModuleStringResSorter(
         const val VALUES_DIRECTORY_NAME = "values"
         const val STRINGS_RES_FILE_STARTS = "strings"
         const val XML_FILE_FORMAT = ".xml"
-        const val RESOURCES_TAG_START = "<resources>"
-        const val RESOURCES_TAG_END = "</resources>"
-        const val RESOURCES_FILE_HEADER = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
         const val SEPARATOR = "\n"
     }
 
@@ -37,8 +34,8 @@ class ModuleStringResSorter(
         val targetFile = getTargetStringsFile(targetDirectoryPath) ?: throw Exception() // stay tuned
         val allStrings = targetFile
             .readText()
-            .substringAfter(RESOURCES_TAG_START)
-            .substringBefore(RESOURCES_TAG_END)
+            .substringAfter("<resources>")
+            .substringBefore("</resources>")
 
         val sortedStrings = allStrings
             .split(SEPARATOR)
@@ -60,9 +57,9 @@ class ModuleStringResSorter(
 
     private fun generateNewResFileContent(strings: List<String>): String =
         """
-		|$RESOURCES_FILE_HEADER
-		|$RESOURCES_TAG_START
+		|<?xml version=\"1.0\" encoding=\"utf-8\"?>
+		|<resources>
 		|${strings.joinToString(separator = SEPARATOR) { "\t$it" }}
-		|$RESOURCES_TAG_END
+		|</resources>
 	""".trimMargin()
 }

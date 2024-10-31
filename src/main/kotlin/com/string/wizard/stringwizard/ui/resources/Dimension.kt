@@ -2,6 +2,7 @@ package com.string.wizard.stringwizard.ui.resources
 
 object Dimension {
 
-    const val BASE_WIDTH = 400
-    const val BASE_HEIGHT = 130
+    const val MAIN_DIALOG_WIDTH = 500
+    const val MAIN_DIALOG_HEIGHT = 300
+
 }

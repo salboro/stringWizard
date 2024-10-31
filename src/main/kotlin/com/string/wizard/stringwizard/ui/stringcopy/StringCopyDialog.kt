@@ -9,9 +9,13 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
 import com.string.wizard.stringwizard.data.entity.ResourceString
+import com.string.wizard.stringwizard.ui.ButtonState
+import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.component.StringListRenderer
+import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
+import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.Dimension
@@ -100,7 +104,7 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
         }
 
         dialogPanel.apply {
-            preferredSize = Dimension(500, 300)
+            preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
 
             add(sourceLabel)
             add(sourceModulePanel)
@@ -126,19 +130,19 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
     }
 
     private fun createStringSelectorDialog(strings: List<ResourceString>): SearchableListDialog<ResourceString> =
-            SearchableListDialog(
-                    parent = dialogPanel,
-                    label = "Select string from resources",
-                    items = strings,
-                    searchBy = { it.name },
-                    itemSelectionListener = presenter::selectString,
-                    itemRenderer = StringListRenderer(),
-            )
+        SearchableListDialog(
+            parent = dialogPanel,
+            label = "Select string from resources",
+            items = strings,
+            searchBy = { it.name },
+            itemSelectionListener = presenter::selectString,
+            itemRenderer = StringListRenderer(),
+        )
 
     override fun changeSourceStringButton(text: String, state: ButtonState) {
         sourceStringButton.text = text
         sourceStringButton.icon = when (state) {
-            ButtonState.EMPTY  -> AllIcons.General.Add
+            ButtonState.EMPTY -> AllIcons.General.Add
             ButtonState.FILLED -> AllIcons.FileTypes.Xml
         }
     }
@@ -147,25 +151,17 @@ class StringCopyDialog(project: Project) : DialogWrapper(project), StringCopyDia
         createModuleSearchDialog(modules, presenter::selectTargetModule).show()
     }
 
-    private fun createModuleSearchDialog(modules: List<Module>, selectionListener: (Module) -> Unit ): SearchableListDialog<Module> =
-            SearchableListDialog(
-                    parent = dialogPanel,
-                    label = "Search modules",
-                    items = modules,
-                    searchBy = { it.name },
-                    itemSelectionListener = selectionListener,
-                    itemRenderer = ModuleListRenderer()
-            )
+    private fun createModuleSearchDialog(modules: List<Module>, selectionListener: (Module) -> Unit): SearchableListDialog<Module> =
+        SearchableListDialog(
+            parent = dialogPanel,
+            label = "Search modules",
+            items = modules,
+            searchBy = { it.name },
+            itemSelectionListener = selectionListener,
+            itemRenderer = ModuleListRenderer()
+        )
 
     override fun changeTargetModuleButton(text: String, state: ButtonState) {
         targetModuleButton.changeModuleButton(text, state)
-    }
-
-    private fun JButton.changeModuleButton(text: String, state: ButtonState) {
-        this.text = text
-        icon = when (state) {
-            ButtonState.EMPTY  -> AllIcons.General.Add
-            ButtonState.FILLED -> AllIcons.Nodes.Module
-        }
     }
 }
