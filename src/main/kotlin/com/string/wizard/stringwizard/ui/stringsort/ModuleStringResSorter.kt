@@ -57,7 +57,7 @@ class ModuleStringResSorter(
 
 	private fun generateNewResFileContent(strings: List<String>): String =
 		"""
-		|<?xml version=\"1.0\" encoding=\"utf-8\"?>
+		|<?xml version="1.0" encoding="utf-8"?>
 		|<resources>
 		|${strings.joinToString(separator = SEPARATOR) { "\t$it" }}
 		|</resources>
