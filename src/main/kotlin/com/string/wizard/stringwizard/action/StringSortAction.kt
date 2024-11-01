@@ -5,12 +5,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
 import com.string.wizard.stringwizard.ui.stringsort.StringSortDialog
 
-
 class StringSortAction : DumbAwareAction() {
 
-    override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
+	override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
-    override fun actionPerformed(event: AnActionEvent) {
-        StringSortDialog(event.project, templatePresentation.text).show()
-    }
+	override fun actionPerformed(event: AnActionEvent) {
+		StringSortDialog(event.project, templatePresentation.text).show()
+	}
 }

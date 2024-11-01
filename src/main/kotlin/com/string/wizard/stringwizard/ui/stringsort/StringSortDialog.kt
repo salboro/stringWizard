@@ -29,73 +29,73 @@ import javax.swing.JPanel
 
 class StringSortDialog(val project: Project?, dialogTitle: String) : DialogWrapper(project) {
 
-    private companion object {
+	private companion object {
 
-        const val BORDER = 10
-    }
+		const val BORDER = 10
+	}
 
-    private val dialogPanel = DialogPanel()
+	private val dialogPanel = DialogPanel()
 
-    private val sourceModulePanel = JPanel()
-    private val sourceModuleLabel = JBLabel("Target module: ")
-    private val sourceModuleButton = JButton("Choose Module", AllIcons.General.Add)
-    private var targetModule: Module? = null
+	private val sourceModulePanel = JPanel()
+	private val sourceModuleLabel = JBLabel("Target module: ")
+	private val sourceModuleButton = JButton("Choose Module", AllIcons.General.Add)
+	private var targetModule: Module? = null
 
-    init {
-        title = dialogTitle
-        init()
-    }
+	init {
+		title = dialogTitle
+		init()
+	}
 
-    override fun createCenterPanel(): JComponent {
-        dialogPanel.layout = VerticalLayout()
-        val modules = project?.modules?.toList()
-            ?.filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
-            ?.sortedBy { it.name }
-            ?: emptyList()
+	override fun createCenterPanel(): JComponent {
+		dialogPanel.layout = VerticalLayout()
+		val modules = project?.modules?.toList()
+			?.filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
+			?.sortedBy { it.name }
+			?: emptyList()
 
-        sourceModuleButton.addActionListener {
-            SearchableListDialog(
-                parent = dialogPanel,
-                label = "Search modules",
-                items = modules,
-                searchBy = { it.name },
-                itemSelectionListener = { module ->
-                    targetModule = module
-                    sourceModuleButton.changeModuleButton(module.name, ButtonState.FILLED)
-                },
-                itemRenderer = ModuleListRenderer()
-            ).show()
-        }
+		sourceModuleButton.addActionListener {
+			SearchableListDialog(
+				parent = dialogPanel,
+				label = "Search modules",
+				items = modules,
+				searchBy = { it.name },
+				itemSelectionListener = { module ->
+					targetModule = module
+					sourceModuleButton.changeModuleButton(module.name, ButtonState.FILLED)
+				},
+				itemRenderer = ModuleListRenderer()
+			).show()
+		}
 
-        sourceModuleLabel.apply {
-            border = Borders.empty(BORDER)
-            horizontalAlignment = JBLabel.HORIZONTAL
-            font = JBFont.h4()
-        }
+		sourceModuleLabel.apply {
+			border = Borders.empty(BORDER)
+			horizontalAlignment = JBLabel.HORIZONTAL
+			font = JBFont.h4()
+		}
 
-        sourceModulePanel.apply {
-            layout = HorizontalLayout()
-            add(sourceModuleLabel)
-            add(sourceModuleButton)
-        }
+		sourceModulePanel.apply {
+			layout = HorizontalLayout()
+			add(sourceModuleLabel)
+			add(sourceModuleButton)
+		}
 
-        dialogPanel.apply {
-            preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
-            add(sourceModulePanel)
-        }
+		dialogPanel.apply {
+			preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
+			add(sourceModulePanel)
+		}
 
-        return dialogPanel
-    }
+		return dialogPanel
+	}
 
-    override fun doOKAction() {
-        if (targetModule != null) {
-            val moduleStringsSorter = ModuleStringResSorter(GetResPathUseCase())
-            try {
-                targetModule?.externalProjectPath?.let { strings -> moduleStringsSorter.sort(strings) }
-                super.doOKAction()
-            } catch (e: Exception) {
-                // stay tuned
-            }
-        }
-    }
+	override fun doOKAction() {
+		if (targetModule != null) {
+			val moduleStringsSorter = ModuleStringResSorter(GetResPathUseCase())
+			try {
+				targetModule?.externalProjectPath?.let { strings -> moduleStringsSorter.sort(strings) }
+				super.doOKAction()
+			} catch (e: Exception) {
+				// stay tuned
+			}
+		}
+	}
 }

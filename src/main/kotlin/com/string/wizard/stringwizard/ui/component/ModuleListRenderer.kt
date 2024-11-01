@@ -8,16 +8,17 @@ import javax.swing.JList
 import javax.swing.ListCellRenderer
 
 class ModuleListRenderer : JBLabel(), ListCellRenderer<Module> {
-    override fun getListCellRendererComponent(
-            list: JList<out Module>?,
-            value: Module?,
-            index: Int,
-            isSelected: Boolean,
-            cellHasFocus: Boolean
-    ): Component {
-        text = value?.name.orEmpty()
-        icon = AllIcons.Nodes.Module
 
-        return this
-    }
+	override fun getListCellRendererComponent(
+		list: JList<out Module>?,
+		value: Module?,
+		index: Int,
+		isSelected: Boolean,
+		cellHasFocus: Boolean
+	): Component {
+		text = value?.name.orEmpty()
+		icon = AllIcons.Nodes.Module
+
+		return this
+	}
 }

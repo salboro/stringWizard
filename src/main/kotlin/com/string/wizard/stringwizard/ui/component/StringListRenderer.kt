@@ -10,20 +10,20 @@ import javax.swing.ListCellRenderer
 
 class StringListRenderer : JBLabel(), ListCellRenderer<ResourceString> {
 
-    override fun getListCellRendererComponent(
-            list: JList<out ResourceString>?,
-            value: ResourceString?,
-            index: Int,
-            isSelected: Boolean,
-            cellHasFocus: Boolean
-    ): Component {
-        text = if (value != null) {
-            formatResourceString(name = value.name, value = value.value, locale = value.locale)
-        } else {
-            "Invalid"
-        }
-        icon = AllIcons.FileTypes.Xml
+	override fun getListCellRendererComponent(
+		list: JList<out ResourceString>?,
+		value: ResourceString?,
+		index: Int,
+		isSelected: Boolean,
+		cellHasFocus: Boolean
+	): Component {
+		text = if (value != null) {
+			formatResourceString(name = value.name, value = value.value, locale = value.locale)
+		} else {
+			"Invalid"
+		}
+		icon = AllIcons.FileTypes.Xml
 
-        return this
-    }
+		return this
+	}
 }

@@ -15,118 +15,122 @@ import java.awt.Dimension
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
-import javax.swing.*
+import javax.swing.DefaultListModel
+import javax.swing.JComponent
+import javax.swing.JPanel
+import javax.swing.ListCellRenderer
+import javax.swing.ListSelectionModel
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
 class SearchableListDialog<T>(
-        parent: Component,
-        label: String,
-        private val items: List<T>,
-        private val size: Dimension = Dimension(700, 500),
-        private val searchBy: (T) -> String = { it.toString() },
-        private val itemSelectionListener: (T) -> Unit = { },
-        private val itemRenderer: ListCellRenderer<T>? = null,
+	parent: Component,
+	label: String,
+	private val items: List<T>,
+	private val size: Dimension = Dimension(700, 500),
+	private val searchBy: (T) -> String = { it.toString() },
+	private val itemSelectionListener: (T) -> Unit = { },
+	private val itemRenderer: ListCellRenderer<T>? = null,
 ) : DialogWrapper(parent, false) {
 
-    private companion object {
+	private companion object {
 
-        const val BORDER = 10
-        const val DOUBLE = 2
-    }
+		const val BORDER = 10
+		const val DOUBLE = 2
+	}
 
-    private val mainPanel = DialogPanel(BorderLayout())
+	private val mainPanel = DialogPanel(BorderLayout())
 
-    private val popupLabel = JBLabel(label)
-    private val listModel = DefaultListModel<T>()
-    private val list = JBList(listModel)
-    private val topPanel = JPanel(VerticalLayout())
+	private val popupLabel = JBLabel(label)
+	private val listModel = DefaultListModel<T>()
+	private val list = JBList(listModel)
+	private val topPanel = JPanel(VerticalLayout())
 
-    private val search = SearchTextField()
+	private val search = SearchTextField()
 
-    private val searchDocumentListener = object : DocumentListener {
-        override fun insertUpdate(e: DocumentEvent?) {
-            changedUpdate(e)
-        }
+	private val searchDocumentListener = object : DocumentListener {
+		override fun insertUpdate(e: DocumentEvent?) {
+			changedUpdate(e)
+		}
 
-        override fun removeUpdate(e: DocumentEvent?) {
-            changedUpdate(e)
-        }
+		override fun removeUpdate(e: DocumentEvent?) {
+			changedUpdate(e)
+		}
 
-        override fun changedUpdate(e: DocumentEvent?) {
-            filterItems(search.text)
-        }
-    }
+		override fun changedUpdate(e: DocumentEvent?) {
+			filterItems(search.text)
+		}
+	}
 
-    private val doubleClickListener: MouseListener = object : MouseAdapter() {
-        override fun mouseClicked(mouseEvent: MouseEvent?) {
-            val list = mouseEvent?.source as? JBList<*> ?: return
-            if (mouseEvent.clickCount == DOUBLE) {
-                val index = list.locationToIndex(mouseEvent.getPoint());
-                if (index >= 0) {
-                    val item = listModel.get(index)
-                    itemSelectionListener(item)
-                    close(OK_EXIT_CODE, true)
-                }
-            }
-        }
-    }
+	private val doubleClickListener: MouseListener = object : MouseAdapter() {
+		override fun mouseClicked(mouseEvent: MouseEvent?) {
+			val list = mouseEvent?.source as? JBList<*> ?: return
+			if (mouseEvent.clickCount == DOUBLE) {
+				val index = list.locationToIndex(mouseEvent.getPoint());
+				if (index >= 0) {
+					val item = listModel.get(index)
+					itemSelectionListener(item)
+					close(OK_EXIT_CODE, true)
+				}
+			}
+		}
+	}
 
-    init {
-        init()
-    }
+	init {
+		init()
+	}
 
-    override fun createCenterPanel(): JComponent {
-        list.apply {
-            selectionMode = ListSelectionModel.SINGLE_SELECTION
-            border = Borders.empty(BORDER)
-            addMouseListener(doubleClickListener)
-            itemRenderer?.let { this.cellRenderer = it }
-        }
+	override fun createCenterPanel(): JComponent {
+		list.apply {
+			selectionMode = ListSelectionModel.SINGLE_SELECTION
+			border = Borders.empty(BORDER)
+			addMouseListener(doubleClickListener)
+			itemRenderer?.let { this.cellRenderer = it }
+		}
 
-        popupLabel.apply {
-            verticalAlignment = JBLabel.CENTER
-            horizontalAlignment = JBLabel.CENTER
-            border = Borders.empty(0, BORDER, BORDER, BORDER)
-            font = JBFont.h4()
-        }
+		popupLabel.apply {
+			verticalAlignment = JBLabel.CENTER
+			horizontalAlignment = JBLabel.CENTER
+			border = Borders.empty(0, BORDER, BORDER, BORDER)
+			font = JBFont.h4()
+		}
 
-        search.apply {
-            border = Borders.emptyBottom(BORDER)
-            addDocumentListener(searchDocumentListener)
-        }
+		search.apply {
+			border = Borders.emptyBottom(BORDER)
+			addDocumentListener(searchDocumentListener)
+		}
 
-        listModel.addAll(items)
+		listModel.addAll(items)
 
-        topPanel.apply {
-            add(popupLabel)
-            add(search)
-        }
+		topPanel.apply {
+			add(popupLabel)
+			add(search)
+		}
 
-        mainPanel.apply {
-            preferredSize = this@SearchableListDialog.size
+		mainPanel.apply {
+			preferredSize = this@SearchableListDialog.size
 
-            add(topPanel, BorderLayout.NORTH)
-            add(JBScrollPane(list), BorderLayout.CENTER)
-        }
+			add(topPanel, BorderLayout.NORTH)
+			add(JBScrollPane(list), BorderLayout.CENTER)
+		}
 
-        return mainPanel
-    }
+		return mainPanel
+	}
 
-    private fun filterItems(query: String) {
-        if (query.isNotBlank()) {
-            val filteredItems = items.filter { searchBy(it).contains(query) }
-            listModel.removeAllElements()
-            listModel.addAll(filteredItems)
-        } else {
-            listModel.removeAllElements()
-            listModel.addAll(items)
-        }
-    }
+	private fun filterItems(query: String) {
+		if (query.isNotBlank()) {
+			val filteredItems = items.filter { searchBy(it).contains(query) }
+			listModel.removeAllElements()
+			listModel.addAll(filteredItems)
+		} else {
+			listModel.removeAllElements()
+			listModel.addAll(items)
+		}
+	}
 
-    override fun doOKAction() {
-        list.selectedValue?.let { itemSelectionListener(it) }
+	override fun doOKAction() {
+		list.selectedValue?.let { itemSelectionListener(it) }
 
-        super.doOKAction()
-    }
+		super.doOKAction()
+	}
 }

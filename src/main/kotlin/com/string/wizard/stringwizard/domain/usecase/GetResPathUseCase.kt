@@ -2,10 +2,10 @@ package com.string.wizard.stringwizard.domain.usecase
 
 class GetResPathUseCase {
 
-    private companion object {
+	private companion object {
 
-        const val RES_DIRECTORY_PATH = "/src/main/res/"
-    }
+		const val RES_DIRECTORY_PATH = "/src/main/res/"
+	}
 
-    operator fun invoke(): String = RES_DIRECTORY_PATH
+	operator fun invoke(): String = RES_DIRECTORY_PATH
 }
