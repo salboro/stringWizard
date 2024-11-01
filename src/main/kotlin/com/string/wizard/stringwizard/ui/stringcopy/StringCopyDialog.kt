@@ -17,8 +17,10 @@ import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.component.StringListRenderer
+import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
+import com.string.wizard.stringwizard.ui.util.copySuccessMessageFormat
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.BorderLayout
@@ -42,8 +44,25 @@ class StringCopyDialog(
 	private companion object {
 
 		const val TITLE = "Copy string"
-		const val BORDER = 10
+
+		const val SOURCE_TITLE = "Source"
+		const val SOURCE_MODULE_LABEL = "Chosen module: "
+		const val SOURCE_STRING_LABEL = "Chosen string from resources: "
+
+		const val TARGET_TITLE = "Target"
+		const val TARGET_MODULE_LABEL = "Chosen module: "
 		const val NEW_STRING_DEFAULT_TEXT = "Choose source string first!"
+		const val NEW_STRING_LABEL = "Input new string name: "
+
+		const val CANCEL = "Cancel"
+		const val OK = "OK"
+		const val COPY = "Copy"
+		const val ATTENTION_DEFAULT_TEXT = "Fill all fields before copy! Also recommend sync (if you haven't done it yet) and commit/stash changes"
+
+		const val STRING_SELECTOR_TITLE = "Select string from resources"
+		const val MODULE_SELECTOR_TITLE = "Search modules"
+
+		const val UNKNOWN_ERROR = "Unknown error"
 	}
 
 	private val presenter = StringCopyDialogPresenter(this, project)
@@ -51,32 +70,32 @@ class StringCopyDialog(
 	private val dialogPanel = DialogPanel(BorderLayout())
 	private val mainPanel = JPanel(VerticalLayout())
 
-	private val sourceLabel = JBLabel("Source")
-	private val targetLabel = JBLabel("Target")
+	private val sourceLabel = JBLabel(SOURCE_TITLE)
+	private val targetLabel = JBLabel(TARGET_TITLE)
 
 	private val sourceModulePanel = JPanel(HorizontalLayout())
-	private val chosenSourceModuleLabel = JBLabel("Chosen module: ")
+	private val chosenSourceModuleLabel = JBLabel(SOURCE_MODULE_LABEL)
 	private val sourceModuleButton = JButton("", AllIcons.General.Add)
 
 	private val sourceStringPanel = JPanel(HorizontalLayout())
-	private val chosenSourceStringLabel = JBLabel("Chosen string from resources: ")
+	private val chosenSourceStringLabel = JBLabel(SOURCE_STRING_LABEL)
 	private val sourceStringButton = JButton("", AllIcons.General.Add)
 
 	private val stringSelectionError = JBLabel()
 
 	private val targetModulePanel = JPanel(HorizontalLayout())
-	private val chosenTargetModuleLabel = JBLabel("Chosen module: ")
+	private val chosenTargetModuleLabel = JBLabel(TARGET_MODULE_LABEL)
 	private val targetModuleButton = JButton("", AllIcons.General.Add)
 
 	private val newStringPanel = JPanel(HorizontalLayout())
-	private val newStringLabel = JBLabel("Input new string name: ")
+	private val newStringLabel = JBLabel(NEW_STRING_LABEL)
 	private val newStringInput = JBTextField(NEW_STRING_DEFAULT_TEXT, 50)
 
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
-	private val cancelButton = JButton("Cancel")
-	private val okButton = JButton("OK").defaultButton()
-	private val copyButton = JButton("Copy").defaultButton()
-	private val attentionText = JBLabel("Fill all fields before copy! Also recommend sync (if you haven't done it yet) and commit/stash changes")
+	private val cancelButton = JButton(CANCEL)
+	private val okButton = JButton(OK).defaultButton()
+	private val copyButton = JButton(COPY).defaultButton()
+	private val attentionText = JBLabel(ATTENTION_DEFAULT_TEXT)
 
 	init {
 		title = TITLE
@@ -85,13 +104,13 @@ class StringCopyDialog(
 
 	override fun createCenterPanel(): JComponent {
 		sourceLabel.apply {
-			border = Borders.empty(BORDER)
+			border = Borders.empty(MAIN_BORDER)
 			horizontalAlignment = JBLabel.CENTER
 			font = JBFont.h4()
 		}
 
 		targetLabel.apply {
-			border = Borders.empty(BORDER)
+			border = Borders.empty(MAIN_BORDER)
 			horizontalAlignment = JBLabel.CENTER
 			font = JBFont.h4()
 		}
@@ -104,7 +123,7 @@ class StringCopyDialog(
 		sourceStringPanel.apply {
 			add(chosenSourceStringLabel)
 			add(sourceStringButton)
-			border = Borders.emptyBottom(BORDER)
+			border = Borders.emptyBottom(MAIN_BORDER)
 		}
 
 		sourceModuleButton.addActionListener {
@@ -135,7 +154,7 @@ class StringCopyDialog(
 		}
 
 		newStringPanel.apply {
-			border = Borders.emptyBottom(BORDER)
+			border = Borders.emptyBottom(MAIN_BORDER)
 			add(newStringLabel)
 			add(newStringInput)
 		}
@@ -154,7 +173,7 @@ class StringCopyDialog(
 		}
 
 		attentionText.apply {
-			border = Borders.emptyTop(BORDER)
+			border = Borders.emptyTop(MAIN_BORDER)
 			foreground = JBColor.RED
 			font = JBFont.regular().asBold()
 		}
@@ -203,7 +222,7 @@ class StringCopyDialog(
 	private fun createStringSelectorDialog(strings: List<ResourceString>): SearchableListDialog<ResourceString> =
 		SearchableListDialog(
 			parent = dialogPanel,
-			label = "Select string from resources",
+			label = STRING_SELECTOR_TITLE,
 			items = strings,
 			searchBy = { it.name },
 			itemSelectionListener = presenter::selectString,
@@ -225,7 +244,7 @@ class StringCopyDialog(
 	private fun createModuleSearchDialog(modules: List<Module>, selectionListener: (Module) -> Unit): SearchableListDialog<Module> =
 		SearchableListDialog(
 			parent = dialogPanel,
-			label = "Search modules",
+			label = MODULE_SELECTOR_TITLE,
 			items = modules,
 			searchBy = { it.name },
 			itemSelectionListener = selectionListener,
@@ -257,18 +276,14 @@ class StringCopyDialog(
 	override fun showSuccess(sourceModuleName: String, targetModuleName: String, sourceStringName: String, newStringName: String) {
 		attentionText.apply {
 			foreground = JBColor.GREEN
-			text = createSuccessMessage(sourceModuleName, targetModuleName, sourceStringName, newStringName)
+			text = copySuccessMessageFormat(sourceModuleName, targetModuleName, sourceStringName, newStringName)
 		}
 	}
-
-	private fun createSuccessMessage(sourceModuleName: String, targetModuleName: String, sourceStringName: String, newStringName: String): String =
-		"<html>String <b><font color=#7EDC95>$sourceStringName</b></font> successfully copied from module <b><font color=#7EDC95>$sourceModuleName</b></font>" +
-			" into module <b><font color=#7EDC95>$targetModuleName</b></font> with name <b><font color=#7EDC95>$newStringName</b></font><html>"
 
 	override fun showCopyFailed(exception: Exception) {
 		attentionText.apply {
 			foreground = JBColor.RED
-			text = exception.message ?: "Unknown error"
+			text = exception.message ?: UNKNOWN_ERROR
 		}
 	}
 
@@ -276,7 +291,7 @@ class StringCopyDialog(
 		stringSelectionError.apply {
 			isVisible = true
 			foreground = JBColor.RED
-			text = exception.message ?: "Unknown error"
+			text = exception.message ?: UNKNOWN_ERROR
 		}
 	}
 

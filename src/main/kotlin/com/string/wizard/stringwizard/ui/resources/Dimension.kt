@@ -5,4 +5,5 @@ object Dimension {
 	const val MAIN_DIALOG_WIDTH = 500
 	const val MAIN_DIALOG_HEIGHT = 300
 
+	const val MAIN_BORDER = 10
 }
