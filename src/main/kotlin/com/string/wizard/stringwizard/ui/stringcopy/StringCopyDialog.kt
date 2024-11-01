@@ -6,13 +6,11 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
-import com.intellij.util.ui.UIUtil.FontColor
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
@@ -64,6 +62,8 @@ class StringCopyDialog(
     private val chosenSourceStringLabel = JBLabel("Chosen string from resources: ")
     private val sourceStringButton = JButton("", AllIcons.General.Add)
 
+    private val stringSelectionError = JBLabel()
+
     private val targetModulePanel = JPanel(HorizontalLayout())
     private val chosenTargetModuleLabel = JBLabel("Chosen module: ")
     private val targetModuleButton = JButton("", AllIcons.General.Add)
@@ -76,7 +76,7 @@ class StringCopyDialog(
     private val cancelButton = JButton("Cancel")
     private val okButton = JButton("OK").defaultButton()
     private val copyButton = JButton("Copy").defaultButton()
-    private val attentionText = JBLabel("Fill all fields before copy!")
+    private val attentionText = JBLabel("Fill all fields before copy! Also recommend sync (if you haven't done it yet) and commit/stash changes")
 
     init {
         title = TITLE
@@ -115,6 +115,12 @@ class StringCopyDialog(
             presenter.onStringSelectionClick()
         }
 
+        stringSelectionError.apply {
+            isVisible = false
+            foreground = JBColor.RED
+            font = JBFont.regular().asBold()
+        }
+
         targetModulePanel.apply {
             add(chosenTargetModuleLabel)
             add(targetModuleButton)
@@ -149,7 +155,6 @@ class StringCopyDialog(
 
         attentionText.apply {
             border = Borders.emptyTop(BORDER)
-            fontColor = FontColor.BRIGHTER
             foreground = JBColor.RED
             font = JBFont.regular().asBold()
         }
@@ -164,6 +169,7 @@ class StringCopyDialog(
             add(sourceLabel)
             add(sourceModulePanel)
             add(sourceStringPanel)
+            add(stringSelectionError)
             add(JSeparator())
             add(targetLabel)
             add(targetModulePanel)
@@ -246,5 +252,36 @@ class StringCopyDialog(
 
     override fun changeCopyButtonEnabled(enabled: Boolean) {
         copyButton.isEnabled = enabled
+    }
+
+
+    override fun showSuccess(sourceModuleName: String, targetModuleName: String, sourceStringName: String, newStringName: String) {
+        attentionText.apply {
+            foreground = JBColor.GREEN
+            text = createSuccessMessage(sourceModuleName, targetModuleName, sourceStringName, newStringName)
+        }
+    }
+
+    private fun createSuccessMessage(sourceModuleName: String, targetModuleName: String, sourceStringName: String, newStringName: String): String =
+        "<html>String <b><font color=#7EDC95>$sourceStringName</b></font> successfully copied from module <b><font color=#7EDC95>$sourceModuleName</b></font>" +
+            " into module <b><font color=#7EDC95>$targetModuleName</b></font> with name <b><font color=#7EDC95>$newStringName</b></font><html>"
+
+    override fun showCopyFailed(exception: Exception) {
+        attentionText.apply {
+            foreground = JBColor.RED
+            text = exception.message ?: "Unknown error"
+        }
+    }
+
+    override fun showStringSelectionFailed(exception: Exception) {
+        stringSelectionError.apply {
+            isVisible = true
+            foreground = JBColor.RED
+            text = exception.message ?: "Unknown error"
+        }
+    }
+
+    override fun hideStringSelectionFailed() {
+        stringSelectionError.isVisible = false
     }
 }

@@ -3,7 +3,6 @@ package com.string.wizard.stringwizard.ui.stringcopy
 import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.ui.ButtonState
-
 interface StringCopyDialogUi {
 
     fun showSourceModulesSelector(modules: List<Module>)
@@ -23,4 +22,12 @@ interface StringCopyDialogUi {
     fun disableNewStringName()
 
     fun changeCopyButtonEnabled(enabled: Boolean)
+
+    fun showSuccess(sourceModuleName: String, targetModuleName: String, sourceStringName: String, newStringName: String)
+
+    fun showCopyFailed(exception: Exception)
+
+    fun showStringSelectionFailed(exception: Exception)
+
+    fun hideStringSelectionFailed()
 }

@@ -16,7 +16,7 @@ class StringRepository {
     }
 
     fun getStringResList(module: Module): List<ResourceString> {
-        val allDirectories = getAllValuesDirectories(module)
+        val allDirectories = getAllValuesDirectories(module).ifEmpty { error("No strings in module ${module.name}") }
         val defaultDirectory = allDirectories.find { it.name == Locale.EN.packageName } ?: allDirectories.first()
         val stringsFile = getStringsFileFromDirectory(defaultDirectory)
 

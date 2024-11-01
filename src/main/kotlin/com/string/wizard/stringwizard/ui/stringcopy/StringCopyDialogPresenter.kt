@@ -55,12 +55,15 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
     }
 
     fun onStringSelectionClick() {
-        val module = selectedSourceModule ?: error("Choose source module first!")
-        val strings = stringRepository.getStringResList(module).ifEmpty {
-            throw IllegalArgumentException("No strings in module ${selectedSourceModule?.name}")
-        }
+        try {
+            val module = selectedSourceModule ?: error("Choose source module first!")
+            val strings = stringRepository.getStringResList(module)
 
-        ui.showSourceStringSelector(strings)
+            ui.showSourceStringSelector(strings)
+            ui.hideStringSelectionFailed()
+        } catch (e: Exception) {
+            ui.showStringSelectionFailed(e)
+        }
     }
 
     fun selectString(string: ResourceString) {
@@ -76,12 +79,23 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 
     fun copy(newStringName: String) {
         if (newStringName.isNotBlank() && selectedTargetModule != null && selectedSourceModule != null && selectedString != null) {
+            try {
                 stringRepository.copyString(
                     requireNotNull(selectedSourceModule),
                     requireNotNull(selectedTargetModule),
                     requireNotNull(selectedString?.name),
                     newStringName
                 )
+
+                ui.showSuccess(
+                    requireNotNull(selectedSourceModule?.name),
+                    requireNotNull(selectedTargetModule?.name),
+                    requireNotNull(selectedString?.name),
+                    newStringName
+                )
+            } catch (e: Exception) {
+                ui.showCopyFailed(e)
+            }
         }
     }
 }
