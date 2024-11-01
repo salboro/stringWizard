@@ -99,12 +99,15 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(pro
 	}
 
 	override fun doOKAction() {
-		if (targetModule != null) {
-			try {
-				super.doOKAction()
-			} catch (e: Exception) {
-				// stay tuned
-			}
+		try {
+			presenter.onOkButtonClick(
+				stringName = newStringNameInput.text,
+				defaultRuValue = newStringValueRuInput.text,
+				defaultEnValue = newStringValueEnInput.text,
+			)
+			super.doOKAction()
+		} catch (e: Exception) {
+			// stay tuned
 		}
 	}
 

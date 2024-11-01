@@ -52,7 +52,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 
 	private fun getResourceFiles(modulePath: String): List<File> {
 		val resDirectoryPath = modulePath + RES_DIRECTORY_PATH
-		return File(resDirectoryPath).walk().filter { it.isDirectory && it.name == "values" }.toList()
+		return File(resDirectoryPath).walk().filter { it.isDirectory && it.name.startsWith("values") }.toList()
 	}
 
 	private fun getModulePath(module: Module) =
@@ -73,7 +73,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 
 	private fun generateNewResFileContent(strings: List<String>): String =
 		"""
-		|<?xml version=\"1.0\" encoding=\"utf-8\"?>
+		|<?xml version="1.0" encoding="utf-8"?>
 		|<resources>
 		|${strings.joinToString(separator = SEPARATOR) { "\t$it" }}
 		|</resources>
