@@ -2,6 +2,7 @@ package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.Locale
+import com.string.wizard.stringwizard.data.util.XmlTemplate
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
@@ -113,22 +114,13 @@ class NewStringRepositoryImpl : NewStringRepository {
 
 	private fun writeStringInTargetRes(file: File, name: String, string: String) {
 		val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
-		val newString = "<string name=\"$name\">$string</string>"
 		val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
 
 		if (strings.any { it.contains(name) }) {
 			throw IllegalArgumentException("$name already exist in ${file.path}")
 		} else {
-			val resultStrings = strings + newString
-			file.writeText(generateNewResFileContent(resultStrings))
+			val resultStrings = strings + XmlTemplate.stringTemplate(name, string)
+			file.writeText(XmlTemplate.resourceFileTemplate(resultStrings))
 		}
 	}
-
-	private fun generateNewResFileContent(strings: List<String>): String =
-		"""
-		|<?xml version="1.0" encoding="utf-8"?>
-		|<resources>
-		|${strings.joinToString(separator = SEPARATOR) { "\t$it" }}
-		|</resources>
-	""".trimMargin()
 }
