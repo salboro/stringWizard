@@ -1,6 +1,7 @@
 package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
+import com.string.wizard.stringwizard.data.entity.Locale
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
@@ -23,36 +24,88 @@ class NewStringRepositoryImpl : NewStringRepository {
 		const val SEPARATOR = "\n"
 	}
 
+	private val listDpValues = Locale.packageList()
+
 	override fun add(targetModule: Module, name: String, defaultRuValue: String, defaultEnValue: String) {
 		val modulePath = getModulePath(targetModule)
-		val valuesList = getResourceFiles(modulePath)
-		if (valuesList.isNotEmpty()) {
-			valuesList.forEach { valueDir ->
-				writeNewString(
-					file = valueDir,
-					name = name,
-					defaultRuValue = defaultRuValue,
-					defaultEnValue = defaultEnValue,
-				)
+		val resPath = "$modulePath$RES_DIRECTORY_PATH"
+		var valuesList = try {
+			getValuesList(resPath)
+		} catch (e: Exception) {
+			throw Exception("Ошибка при получении списка")
+		} //  TODO Подумать как обработать кейс c созданными папками не полностью
+
+		if (valuesList.isEmpty()) {
+			createStringsFiles(modulePath)
+			valuesList = getValuesList(modulePath)
+		}
+
+		valuesList.forEach { valueDir ->
+			writeNewString(
+				file = valueDir,
+				name = name,
+				defaultRuValue = defaultRuValue,
+				defaultEnValue = defaultEnValue,
+			)
+		}
+	}
+
+	private fun writeNewString(
+		file: File,
+		name: String,
+		defaultRuValue: String,
+		defaultEnValue: String
+	) {
+		var stringsFile = getStringsFile(file)
+		if (stringsFile == null) {
+			try {
+				createNewStringsFile(file.absolutePath)
+				stringsFile = File(file.absolutePath).walk().find { it.isFile && it.name.startsWith("strings") && it.name.endsWith(".xml") }
+			} catch (_: Exception) {
+				throw Exception("Не удалось создать файл ${file.absolutePath}/strings.xml")
 			}
-		} else {
-			throw IllegalStateException() //TODO() Добавить возможность создавать директории
+		}
+
+		stringsFile?.let {
+			if (Locale.isEnLocale(file.name)) {
+				writeStringInTargetRes(it, name, defaultEnValue)
+			} else {
+				writeStringInTargetRes(it, name, defaultRuValue)
+			}
+		} ?: throw Exception("Не нашли строковой файл в ${file.absolutePath}")
+	}
+
+	private fun getStringsFile(file: File) =
+		File(file.absolutePath).walk().find { it.isFile && it.name.startsWith("strings") && it.name.endsWith(".xml") }
+
+	private fun getValuesList(resPath: String): List<File> =
+		File(resPath).walk().filter { it.isDirectory && it.name.startsWith("values") }.toList()
+
+	private fun createStringsFiles(modulePath: String) {
+		val resPath = "$modulePath$RES_DIRECTORY_PATH"
+		try {
+			File(resPath).mkdir()
+		} catch (e: Exception) {
+			throw Exception("не добавляются папка с ресурсами + ${e.message}")
+		}
+
+		listDpValues.forEach {
+			try {
+				File("$resPath${it}").mkdir()
+			} catch (e: Exception) {
+				throw Exception("не добавляются values + ${e.message}")
+			}
+
+			createNewStringsFile(resPath + it)
 		}
 	}
 
-	private fun writeNewString(file: File, name: String, defaultRuValue: String, defaultEnValue: String) {
-		val value = File(file.absolutePath).walk().find { it.isFile && it.name.startsWith("strings") && it.name.endsWith(".xml") }
-
-		if (value != null) {
-			writeStringInTargetRes(value, name, defaultRuValue)
-		} else {
-			throw IllegalStateException() //TODO() Добавить возможность создавать директории
+	private fun createNewStringsFile(valueAbsolutePath: String) {
+		try {
+			File("$valueAbsolutePath/strings.xml").createNewFile()
+		} catch (e: Exception) {
+			throw Exception("не добавляются строки + ${e.message}")
 		}
-	}
-
-	private fun getResourceFiles(modulePath: String): List<File> {
-		val resDirectoryPath = modulePath + RES_DIRECTORY_PATH
-		return File(resDirectoryPath).walk().filter { it.isDirectory && it.name.startsWith("values") }.toList()
 	}
 
 	private fun getModulePath(module: Module) =

@@ -38,6 +38,8 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(pro
 	private val newStringValueEnLabel = JBLabel("Input En default value")
 	private val newStringValueEnInput = JBTextField()
 
+	private val error = JBLabel("empty")
+
 	private var targetModule: Module? = null
 
 	init {
@@ -90,6 +92,10 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(pro
 		gridBagConstraints.gridy = 3
 		targetModulePanel.add(newStringValueEnInput, gridBagConstraints)
 
+		gridBagConstraints.gridx = 0
+		gridBagConstraints.gridy = 4
+		targetModulePanel.add(error, gridBagConstraints)
+
 		dialogPanel.apply {
 			preferredWidth = 400
 			add(targetModulePanel, BorderLayout.WEST)
@@ -105,9 +111,8 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(pro
 				defaultRuValue = newStringValueRuInput.text,
 				defaultEnValue = newStringValueEnInput.text,
 			)
-			super.doOKAction()
 		} catch (e: Exception) {
-			// stay tuned
+			error.text = e.message
 		}
 	}
 
