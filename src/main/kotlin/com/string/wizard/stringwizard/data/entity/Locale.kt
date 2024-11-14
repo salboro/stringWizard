@@ -26,5 +26,15 @@ enum class Locale(val packageName: String) {
 
 		fun packageList(): List<String> =
 			values().map { it.packageName }
+
+		fun isEnLocale(string: String): Boolean = string in listOf(
+			EN.packageName,
+			DE.packageName,
+			EL.packageName,
+			ES.packageName,
+			FR.packageName,
+			IT.packageName,
+			TR.packageName,
+		)
 	}
 }
