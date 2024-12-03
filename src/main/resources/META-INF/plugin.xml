@@ -68,6 +68,18 @@
 				class="com.string.wizard.stringwizard.action.StringAddAction"
 				text="String Add"
 				description="Add new string to target module with default values (ru,en)"/>
+
+			<add-to-group
+				group-id="ToolsMenu"
+				anchor="after"
+				relative-to-action="StringAddFromExcelAction"/>
+
+			<action
+				icon="AllIcons.Actions.AddFile"
+				id="StringAddFromExcelAction"
+				class="com.string.wizard.stringwizard.action.StringAddFromExcelAction"
+				text="Add String from Excel"
+				description="Add string from excel file"/>
 		</group>
 	</actions>
 
