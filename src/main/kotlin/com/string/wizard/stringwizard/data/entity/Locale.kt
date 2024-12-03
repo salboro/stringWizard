@@ -26,5 +26,15 @@ enum class Locale(val packageName: String) {
 
 		fun packageList(): List<String> =
 			values().map { it.packageName }
+
+		val enDefaultList = listOf(EN, TR, IT, DE, EL, FR, ES)
+		val ruDefaultList = listOf(RU, KK, KY, AZ, RO, TG, UZ, KA, UK, ZH)
 	}
 }
+
+fun Locale.getDefaultLocale(): Locale =
+	when (this) {
+		in Locale.enDefaultList -> Locale.EN
+		in Locale.ruDefaultList -> Locale.RU
+		else                    -> error("No default locale")
+	}
