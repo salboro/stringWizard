@@ -1,5 +1,6 @@
 package com.string.wizard.stringwizard.ui.addfromexcel
 
+import com.intellij.collaboration.ui.CollaborationToolsUIUtil.defaultButton
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.module.Module
@@ -30,6 +31,7 @@ import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.FlowLayout
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -59,6 +61,10 @@ class StringAddFromExcelDialog(
 		const val EXCEL_FILE_EXTENSION = "xlsx"
 
 		const val STRING_SELECTOR_TITLE = "title"
+
+		const val CANCEL = "Cancel"
+		const val OK = "OK"
+		const val ADD = "Add"
 
 		const val MAX_TEXT_LENGTH = 150
 	}
@@ -96,6 +102,11 @@ class StringAddFromExcelDialog(
 	}
 	private val excelStringsTable = JBTable(tableDataModel)
 	private val excelTablePanel = JBScrollPane(excelStringsTable)
+
+	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
+	private val cancelButton = JButton(CANCEL)
+	private val okButton = JButton(OK).defaultButton()
+	private val addButton = JButton(ADD).defaultButton()
 
 	private val debugText = JBLabel()
 
@@ -167,6 +178,24 @@ class StringAddFromExcelDialog(
 			preferredSize = Dimension(1000, 300)
 		}
 
+		addButton.apply {
+			addActionListener { presenter.add(newStringInput.text) }
+		}
+
+		cancelButton.apply {
+			addActionListener { super.doCancelAction() }
+		}
+
+		okButton.apply {
+			addActionListener { super.doOKAction() }
+		}
+
+		buttonsPanel.apply {
+			add(cancelButton)
+			add(addButton)
+			add(okButton)
+		}
+
 		mainPanel.apply {
 			add(fileSelectorPanel)
 			add(excelStringPanel)
@@ -180,6 +209,7 @@ class StringAddFromExcelDialog(
 			preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
 
 			add(mainPanel, BorderLayout.CENTER)
+			add(buttonsPanel, BorderLayout.SOUTH)
 		}
 
 		return dialogPanel
