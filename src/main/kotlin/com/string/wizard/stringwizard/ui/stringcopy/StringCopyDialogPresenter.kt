@@ -1,7 +1,5 @@
 package com.string.wizard.stringwizard.ui.stringcopy
 
-import com.android.tools.idea.projectsystem.isMainModule
-import com.android.tools.idea.projectsystem.isUnitTestModule
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
@@ -9,16 +7,15 @@ import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.repository.StringRepository
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.util.formatResourceString
-import org.jetbrains.kotlin.idea.base.util.isAndroidModule
+import org.jetbrains.kotlin.idea.util.sourceRoots
 
 class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Project) {
 
 	private val stringRepository = StringRepository()
 
-	private val filteredModules = project.modules
-		.toList()
-		.filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
-		.sortedBy { it.name }
+	private val filteredModules = project.modules.filter { module ->
+		module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
+	}
 
 	private var selectedSourceModule: Module? = null
 	private var selectedTargetModule: Module? = null
