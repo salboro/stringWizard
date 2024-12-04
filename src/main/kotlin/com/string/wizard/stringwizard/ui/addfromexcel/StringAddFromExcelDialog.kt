@@ -53,6 +53,8 @@ class StringAddFromExcelDialog(
 		const val EXCEL_STRING_LABEL = "Choose excel string"
 		const val TARGET_MODULE_LABEL = "Chosen module: "
 		const val MODULE_SELECTOR_TITLE = "Search modules"
+		const val NEW_STRING_DEFAULT_TEXT = "Choose source string first!"
+		const val NEW_STRING_LABEL = "Input new string name: "
 
 		const val EXCEL_FILE_EXTENSION = "xlsx"
 
@@ -81,6 +83,10 @@ class StringAddFromExcelDialog(
 	private val targetModulePanel = JPanel(HorizontalLayout())
 	private val chosenTargetModuleLabel = JBLabel(TARGET_MODULE_LABEL)
 	private val targetModuleButton = JButton("", AllIcons.General.Add)
+
+	private val newStringPanel = JPanel(HorizontalLayout())
+	private val newStringLabel = JBLabel(NEW_STRING_LABEL)
+	private val newStringInput = JBTextField(NEW_STRING_DEFAULT_TEXT, 50)
 
 	private val excelStringsTableColumns = arrayOf("Locale", "Copy from default", "Value")
 	private val tableDataModel = object : DefaultTableModel() {
@@ -135,6 +141,16 @@ class StringAddFromExcelDialog(
 			add(targetModuleButton)
 		}
 
+		newStringInput.apply {
+			isEnabled = false
+		}
+
+		newStringPanel.apply {
+			border = Borders.emptyBottom(MAIN_BORDER)
+			add(newStringLabel)
+			add(newStringInput)
+		}
+
 		tableDataModel.setColumnIdentifiers(excelStringsTableColumns)
 
 		excelStringsTable.apply {
@@ -155,6 +171,7 @@ class StringAddFromExcelDialog(
 			add(fileSelectorPanel)
 			add(excelStringPanel)
 			add(targetModulePanel)
+			add(newStringPanel)
 			add(excelTablePanel)
 			add(debugText)
 		}
@@ -227,5 +244,12 @@ class StringAddFromExcelDialog(
 
 	override fun changeTargetModuleButton(text: String, state: ButtonState) {
 		targetModuleButton.changeModuleButton(text, state)
+	}
+
+	override fun changeNewStringName(text: String) {
+		newStringInput.apply {
+			isEnabled = true
+			this.text = text
+		}
 	}
 }
