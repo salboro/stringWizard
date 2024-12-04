@@ -1,23 +1,20 @@
 package com.string.wizard.stringwizard.presentation.stringadd
 
-import com.android.tools.idea.projectsystem.isMainModule
-import com.android.tools.idea.projectsystem.isUnitTestModule
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.repository.NewStringRepositoryImpl
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringadd.StringAddDialogUi
-import org.jetbrains.kotlin.idea.base.util.isAndroidModule
+import org.jetbrains.kotlin.idea.util.sourceRoots
 
 class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 
 	private val newStringRepository = NewStringRepositoryImpl()
 
-	private val filteredModules = project.modules
-		.toList()
-		.filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
-		.sortedBy { it.name }
+	private val filteredModules = project.modules.filter { module ->
+		module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
+	}
 
 	private var selectedModule: Module? = null
 

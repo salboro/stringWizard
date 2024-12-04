@@ -10,6 +10,7 @@ class StringSortAction : DumbAwareAction() {
 	override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
 	override fun actionPerformed(event: AnActionEvent) {
-		StringSortDialog(event.project, templatePresentation.text).show()
+		val project = event.project ?: error("No project")
+		StringSortDialog(project, templatePresentation.text).show()
 	}
 }

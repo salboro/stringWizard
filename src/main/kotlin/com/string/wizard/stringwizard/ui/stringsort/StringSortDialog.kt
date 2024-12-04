@@ -1,7 +1,5 @@
 package com.string.wizard.stringwizard.ui.stringsort
 
-import com.android.tools.idea.projectsystem.isMainModule
-import com.android.tools.idea.projectsystem.isUnitTestModule
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -21,13 +19,13 @@ import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
-import org.jetbrains.kotlin.idea.base.util.isAndroidModule
+import org.jetbrains.kotlin.idea.util.sourceRoots
 import java.awt.Dimension
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class StringSortDialog(val project: Project?, dialogTitle: String) : DialogWrapper(project) {
+class StringSortDialog(val project: Project, dialogTitle: String) : DialogWrapper(project) {
 
 	private companion object {
 
@@ -48,10 +46,9 @@ class StringSortDialog(val project: Project?, dialogTitle: String) : DialogWrapp
 
 	override fun createCenterPanel(): JComponent {
 		dialogPanel.layout = VerticalLayout()
-		val modules = project?.modules?.toList()
-			?.filter { it.isAndroidModule() && it.isMainModule() && !it.isUnitTestModule() }
-			?.sortedBy { it.name }
-			?: emptyList()
+		val modules = project.modules.filter { module ->
+			module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
+		}
 
 		sourceModuleButton.addActionListener {
 			SearchableListDialog(
