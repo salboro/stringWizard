@@ -50,8 +50,9 @@ class StringRepository {
 
 	fun copyString(sourceModule: Module, targetModule: Module, stringSourceName: String, stringTargetName: String) {
 		val sourceStrings = getAllLocaleStrings(stringSourceName, sourceModule)
+		val stringsWithNewName = sourceStrings.map { it.copy(name = stringTargetName) }
 
-		writeNewStringsInAllLocale(targetModule, sourceStrings, stringTargetName)
+		writeNewStringsInAllLocale(targetModule, stringsWithNewName)
 	}
 
 	private fun getAllLocaleStrings(stringName: String, module: Module): List<ResourceString> {
@@ -77,13 +78,13 @@ class StringRepository {
 		}
 	}
 
-	private fun writeNewStringsInAllLocale(module: Module, sourceStrings: List<ResourceString>, newStringName: String) {
+	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>) {
 		val directories = getAllValuesDirectories(module)
 
 		directories.forEach { directory ->
 			val stringsFile = getStringsFileFromDirectory(directory)
-			val string = sourceStrings.find { it.locale.packageName == directory.name } ?: error("ABOBA")
-			writeStringInFile(stringsFile, string.value, newStringName)
+			val string = strings.find { it.locale.packageName == directory.name } ?: error("ABOBA")
+			writeStringInFile(stringsFile, string)
 		}
 	}
 
@@ -104,13 +105,13 @@ class StringRepository {
 			.find { it.isFile && it.name == STRINGS_FILE_NAME }
 			?: throw IllegalArgumentException("No string file in directory ${directory.absolutePath}")
 
-	private fun writeStringInFile(file: File, stringValue: String, stringName: String) {
+	private fun writeStringInFile(file: File, string: ResourceString) {
 		val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
-		val newString = XmlTemplate.stringTemplate(name = stringName, value = stringValue)
+		val newString = XmlTemplate.stringTemplate(name = string.name, value = string.value)
 		val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
 
-		if (strings.any { it.contains(stringName) }) {
-			throw IllegalArgumentException("$stringName already exist in ${file.path}")
+		if (strings.any { it.contains(string.name) }) {
+			throw IllegalArgumentException("${string.name} already exist in ${file.path}")
 		} else {
 			val resultStrings = strings + newString
 			val sortedStrings = resultStrings.sorted()
