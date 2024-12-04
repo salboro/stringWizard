@@ -2,7 +2,6 @@ package com.string.wizard.stringwizard.ui.util
 
 import com.intellij.ui.table.JBTable
 
-
 private const val MINIMAL_COLUMN_WIDTH = 50
 private const val ADDITIONAL_INDENT = 10
 

@@ -21,4 +21,6 @@ interface StringAddFromExcelUi {
 	fun showTargetModuleSelector(modules: List<Module>)
 
 	fun changeTargetModuleButton(text: String, state: ButtonState)
+
+	fun changeNewStringName(text: String)
 }
