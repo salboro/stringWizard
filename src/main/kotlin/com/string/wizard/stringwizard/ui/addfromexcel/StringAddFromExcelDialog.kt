@@ -8,14 +8,20 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
+import com.intellij.ui.table.JBTable
+import com.intellij.util.ui.JBUI.Borders
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.presentation.addfromexcel.StringAddFromExcelPresenter
 import com.string.wizard.stringwizard.ui.component.ExcelStringListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
+import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
+import com.string.wizard.stringwizard.ui.util.adjustColumnWidths
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.BorderLayout
@@ -23,6 +29,7 @@ import java.awt.Dimension
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.table.DefaultTableModel
 
 class StringAddFromExcelDialog(
 	project: Project
@@ -65,6 +72,15 @@ class StringAddFromExcelDialog(
 	private val excelStringLabel = JBLabel(EXCEL_STRING_LABEL)
 	private val excelStringButton = JButton("", AllIcons.General.Add)
 
+	private val excelStringsTableColumns = arrayOf("Locale", "Copy from default", "Value")
+	private val tableDataModel = object : DefaultTableModel() {
+		override fun isCellEditable(row: Int, column: Int): Boolean {
+			return false
+		}
+	}
+	private val excelStringsTable = JBTable(tableDataModel)
+	private val excelTablePanel = JBScrollPane(excelStringsTable)
+
 	private val debugText = JBLabel()
 
 	private val browseListener = object : TextBrowseFolderListener(fileDescriptor) {
@@ -100,10 +116,27 @@ class StringAddFromExcelDialog(
 			addActionListener { presenter.onExcelStringSelectClick() }
 		}
 
+		tableDataModel.setColumnIdentifiers(excelStringsTableColumns)
+
+		excelStringsTable.apply {
+			isStriped = true
+			gridColor = JBColor.GRAY
+			intercellSpacing = Dimension(1, 1)
+			autoResizeMode = JBTable.AUTO_RESIZE_OFF
+		}
+
+		excelTablePanel.apply {
+			border = Borders.empty(MAIN_BORDER, 0)
+			horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+			isVisible = false
+			preferredSize = Dimension(1000, 300)
+		}
+
 		mainPanel.apply {
 			add(fileSelectorPanel)
 			add(excelStringPanel)
 			add(debugText)
+			add(excelTablePanel)
 		}
 
 		dialogPanel.apply {
@@ -136,16 +169,28 @@ class StringAddFromExcelDialog(
 
 	override fun changeExcelString(string: String) {
 		excelStringButton.apply {
-			text = if (string.length > MAX_TEXT_LENGTH) {
-				string.take(MAX_TEXT_LENGTH)
-			} else {
-				string
-			}
+			text = string.take(MAX_TEXT_LENGTH)
 			icon = if (string.isNotBlank()) {
 				AllIcons.FileTypes.XsdFile
 			} else {
 				AllIcons.General.Add
 			}
 		}
+	}
+
+	override fun showExcelStrings(strings: List<ExcelString>) {
+		tableDataModel.rowCount = 0
+
+		strings.forEach {
+			tableDataModel.addRow(arrayOf(it.locale.name, it.fromDefault, it.value))
+		}
+
+		excelStringsTable.adjustColumnWidths()
+
+		excelTablePanel.isVisible = true
+	}
+
+	override fun hideExcelStrings() {
+		excelTablePanel.isVisible = false
 	}
 }
