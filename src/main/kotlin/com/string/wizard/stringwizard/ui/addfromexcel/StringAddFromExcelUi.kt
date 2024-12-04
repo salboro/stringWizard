@@ -1,6 +1,8 @@
 package com.string.wizard.stringwizard.ui.addfromexcel
 
+import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.ExcelString
+import com.string.wizard.stringwizard.ui.ButtonState
 
 interface StringAddFromExcelUi {
 
@@ -15,4 +17,8 @@ interface StringAddFromExcelUi {
 	fun showExcelStrings(strings: List<ExcelString>)
 
 	fun hideExcelStrings()
+
+	fun showTargetModuleSelector(modules: List<Module>)
+
+	fun changeTargetModuleButton(text: String, state: ButtonState)
 }

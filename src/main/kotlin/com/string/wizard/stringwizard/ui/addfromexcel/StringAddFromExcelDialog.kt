@@ -2,6 +2,7 @@ package com.string.wizard.stringwizard.ui.addfromexcel
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
@@ -16,7 +17,10 @@ import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBUI.Borders
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.presentation.addfromexcel.StringAddFromExcelPresenter
+import com.string.wizard.stringwizard.ui.ButtonState
+import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.ExcelStringListRenderer
+import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
@@ -47,6 +51,8 @@ class StringAddFromExcelDialog(
 
 		const val FILE_SELECTOR_LABEL = "Choose excel source file"
 		const val EXCEL_STRING_LABEL = "Choose excel string"
+		const val TARGET_MODULE_LABEL = "Chosen module: "
+		const val MODULE_SELECTOR_TITLE = "Search modules"
 
 		const val EXCEL_FILE_EXTENSION = "xlsx"
 
@@ -55,7 +61,7 @@ class StringAddFromExcelDialog(
 		const val MAX_TEXT_LENGTH = 150
 	}
 
-	private val presenter = StringAddFromExcelPresenter(this)
+	private val presenter = StringAddFromExcelPresenter(this, project)
 
 	private val dialogPanel = DialogPanel(BorderLayout())
 	private val mainPanel = JPanel(VerticalLayout())
@@ -71,6 +77,10 @@ class StringAddFromExcelDialog(
 	private val excelStringPanel = JPanel(HorizontalLayout())
 	private val excelStringLabel = JBLabel(EXCEL_STRING_LABEL)
 	private val excelStringButton = JButton("", AllIcons.General.Add)
+
+	private val targetModulePanel = JPanel(HorizontalLayout())
+	private val chosenTargetModuleLabel = JBLabel(TARGET_MODULE_LABEL)
+	private val targetModuleButton = JButton("", AllIcons.General.Add)
 
 	private val excelStringsTableColumns = arrayOf("Locale", "Copy from default", "Value")
 	private val tableDataModel = object : DefaultTableModel() {
@@ -116,6 +126,15 @@ class StringAddFromExcelDialog(
 			addActionListener { presenter.onExcelStringSelectClick() }
 		}
 
+		targetModuleButton.addActionListener {
+			presenter.onTargetModuleSelectorClick()
+		}
+
+		targetModulePanel.apply {
+			add(chosenTargetModuleLabel)
+			add(targetModuleButton)
+		}
+
 		tableDataModel.setColumnIdentifiers(excelStringsTableColumns)
 
 		excelStringsTable.apply {
@@ -135,8 +154,9 @@ class StringAddFromExcelDialog(
 		mainPanel.apply {
 			add(fileSelectorPanel)
 			add(excelStringPanel)
-			add(debugText)
+			add(targetModulePanel)
 			add(excelTablePanel)
+			add(debugText)
 		}
 
 		dialogPanel.apply {
@@ -192,5 +212,20 @@ class StringAddFromExcelDialog(
 
 	override fun hideExcelStrings() {
 		excelTablePanel.isVisible = false
+	}
+
+	override fun showTargetModuleSelector(modules: List<Module>) {
+		SearchableListDialog(
+			parent = dialogPanel,
+			label = MODULE_SELECTOR_TITLE,
+			items = modules,
+			searchBy = { it.name },
+			itemSelectionListener = presenter::selectTargetModule,
+			itemRenderer = ModuleListRenderer()
+		).show()
+	}
+
+	override fun changeTargetModuleButton(text: String, state: ButtonState) {
+		targetModuleButton.changeModuleButton(text, state)
 	}
 }
