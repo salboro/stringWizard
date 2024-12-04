@@ -13,13 +13,14 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi) {
 	private val excelRepository = ExcelRepository()
 
 	private var excelFile: File? = null
-	private var excelString: ExcelString? = null
+	private var excelStrings: List<ExcelString>? = null
 
 	fun chooseFile(file: VirtualFile) {
 		excelFile = File(file.path)
 
 		ui.enableExcelString(true)
 		ui.changeExcelString("")
+		ui.hideExcelStrings()
 	}
 
 	fun onExcelStringSelectClick() {
@@ -27,14 +28,19 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi) {
 			val excelFile = excelFile ?: return
 			val strings = excelRepository.getStringsByLocale(excelFile, Locale.RU)
 
+			ui.hideExcelStrings()
 			ui.showStringSelector(strings)
 		} catch (e: Exception) {
 			ui.showDebugText(e.message ?: "aboba")
+			ui.hideExcelStrings()
 		}
 	}
 
 	fun selectExcelString(string: ExcelString) {
-		excelString = string
+		val excelFile = excelFile ?: return
+		val stringsForAllLocales = excelRepository.getStringsForAllLocale(excelFile, string)
+		excelStrings = stringsForAllLocales
 		ui.changeExcelString(formatExcelString(string.value, string.position, string.locale))
+		ui.showExcelStrings(stringsForAllLocales)
 	}
 }

@@ -11,4 +11,8 @@ interface StringAddFromExcelUi {
 	fun showStringSelector(strings: List<ExcelString>)
 
 	fun changeExcelString(string: String)
+
+	fun showExcelStrings(strings: List<ExcelString>)
+
+	fun hideExcelStrings()
 }
