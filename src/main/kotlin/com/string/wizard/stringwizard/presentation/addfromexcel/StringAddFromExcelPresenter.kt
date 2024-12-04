@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.repository.ExcelRepository
+import com.string.wizard.stringwizard.data.repository.StringRepository
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.addfromexcel.StringAddFromExcelUi
 import com.string.wizard.stringwizard.ui.util.formatExcelString
@@ -18,6 +19,8 @@ import java.io.File
 class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project: Project) {
 
 	private val excelRepository = ExcelRepository()
+	private val stringRepository = StringRepository()
+	private val stringConverter = StringConverter()
 
 	private val filteredModules = project.modules
 		.toList()
@@ -44,7 +47,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 			ui.hideExcelStrings()
 			ui.showStringSelector(strings)
 		} catch (e: Exception) {
-			ui.showDebugText(e.message ?: "aboba")
+			ui.showDebugText(e.message ?: "Unknown exception")
 			ui.hideExcelStrings()
 		}
 	}
@@ -70,6 +73,15 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 	}
 
 	fun add(newStringName: String) {
+		try {
+			val excelStrings = excelStrings ?: error("Excel string not selected!")
+			val selectedModule = selectedTargetModule ?: error("Module not selected!")
+			val resourcesStrings = excelStrings.map { stringConverter.convert(it, newStringName) }
 
+			stringRepository.writeNewStringsInAllLocale(selectedModule, resourcesStrings)
+			ui.showDebugText("Success!")
+		} catch (e: Exception) {
+			ui.showDebugText(e.message ?: "Unknown exception")
+		}
 	}
 }
