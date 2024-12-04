@@ -17,6 +17,7 @@ intellij {
     version.set("2023.1.5")
     type.set("IC") // Target IDE Platform
     plugins.set(listOf("android"))
+    updateSinceUntilBuild.set(false)
 }
 
 tasks {
@@ -31,7 +32,6 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("231")
-        untilBuild.set("241.*")
     }
 
     signPlugin {
