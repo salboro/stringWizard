@@ -68,4 +68,8 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 		ui.changeTargetModuleButton(module.name, ButtonState.FILLED)
 		ui.changeNewStringName(module.name)
 	}
+
+	fun add(newStringName: String) {
+
+	}
 }
