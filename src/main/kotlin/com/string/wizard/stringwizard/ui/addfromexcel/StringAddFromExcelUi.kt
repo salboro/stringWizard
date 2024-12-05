@@ -6,7 +6,7 @@ import com.string.wizard.stringwizard.ui.ButtonState
 
 interface StringAddFromExcelUi {
 
-	fun showDebugText(text: String)
+	fun setAttentionText(text: String, state: AttentionTextState)
 
 	fun enableExcelString(enabled: Boolean)
 

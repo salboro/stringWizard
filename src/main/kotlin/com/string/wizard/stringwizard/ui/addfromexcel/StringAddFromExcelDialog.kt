@@ -108,7 +108,7 @@ class StringAddFromExcelDialog(
 	private val okButton = JButton(OK).defaultButton()
 	private val addButton = JButton(ADD).defaultButton()
 
-	private val debugText = JBLabel()
+	private val attentionText = JBLabel()
 
 	private val browseListener = object : TextBrowseFolderListener(fileDescriptor) {
 		override fun onFileChosen(chosenFile: VirtualFile) {
@@ -202,7 +202,7 @@ class StringAddFromExcelDialog(
 			add(targetModulePanel)
 			add(newStringPanel)
 			add(excelTablePanel)
-			add(debugText)
+			add(attentionText)
 		}
 
 		dialogPanel.apply {
@@ -215,8 +215,15 @@ class StringAddFromExcelDialog(
 		return dialogPanel
 	}
 
-	override fun showDebugText(text: String) {
-		debugText.text = text
+	override fun setAttentionText(text: String, state: AttentionTextState) {
+		attentionText.apply {
+			this.text = text
+			foreground = when (state) {
+				AttentionTextState.ERROR   -> JBColor.RED
+				AttentionTextState.SUCCESS -> JBColor.GREEN
+			}
+		}
+
 	}
 
 	override fun enableExcelString(enabled: Boolean) {
