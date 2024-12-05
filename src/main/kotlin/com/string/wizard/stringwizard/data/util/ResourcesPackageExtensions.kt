@@ -1,5 +1,6 @@
 package com.string.wizard.stringwizard.data.util
 
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage.AZ
@@ -20,7 +21,13 @@ import com.string.wizard.stringwizard.data.entity.ResourcesPackage.UK
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage.UZ
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage.ZH
 
-fun ResourcesPackage.getLocale(): Locale =
+fun ResourcesPackage.getLocale(domain: Domain = Domain.DP): Locale =
+	when (domain) {
+		Domain.DP   -> getDpLocale()
+		Domain.LOAN -> getLoanLocale()
+	}
+
+private fun ResourcesPackage.getDpLocale(): Locale =
 	when (this) {
 		BASE -> Locale.EN
 		AZ   -> Locale.AZ
@@ -39,4 +46,17 @@ fun ResourcesPackage.getLocale(): Locale =
 		UK   -> Locale.UK
 		UZ   -> Locale.UZ
 		ZH   -> Locale.ZH
+	}
+
+private fun ResourcesPackage.getLoanLocale(): Locale =
+	when (this) {
+		BASE -> Locale.RU
+		AZ   -> Locale.AZ
+		KA   -> Locale.KA
+		KK   -> Locale.KK
+		KY   -> Locale.KY
+		RO   -> Locale.RO
+		TG   -> Locale.TG
+		UZ   -> Locale.UZ
+		else -> error("Invalid package for loans $packageName")
 	}

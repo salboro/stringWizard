@@ -1,11 +1,13 @@
 package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.util.XmlTemplate
 import com.string.wizard.stringwizard.data.util.getLocale
 import com.string.wizard.stringwizard.data.util.getPackage
+import com.string.wizard.stringwizard.data.util.getStringFileName
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
@@ -14,13 +16,12 @@ class StringRepository {
 	private companion object {
 
 		const val RES_DIRECTORY_PATH = "/src/main/res/"
-		const val STRINGS_FILE_NAME = "strings.xml"
 	}
 
 	fun getStringResList(module: Module): List<ResourceString> {
-		val allDirectories = getAllValuesDirectories(module).ifEmpty { error("No strings in module ${module.name}") }
+		val allDirectories = getAllValuesDirectories(module, Domain.DP).ifEmpty { error("No strings in module ${module.name}") }
 		val defaultDirectory = allDirectories.find { it.name == ResourcesPackage.BASE.packageName } ?: allDirectories.first()
-		val stringsFile = getStringsFileFromDirectory(defaultDirectory)
+		val stringsFile = getStringsFileFromDirectory(defaultDirectory, Domain.DP)
 
 		return getStrings(stringsFile, defaultDirectory.name)
 	}
@@ -59,10 +60,10 @@ class StringRepository {
 	}
 
 	private fun getAllLocaleStrings(stringName: String, module: Module): List<ResourceString> {
-		val valuesDirectories = getAllValuesDirectories(module)
+		val valuesDirectories = getAllValuesDirectories(module, Domain.DP)
 
 		return valuesDirectories.map { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory)
+			val stringsFile = getStringsFileFromDirectory(directory, Domain.DP)
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale()
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
@@ -82,31 +83,37 @@ class StringRepository {
 		}
 	}
 
-	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>) {
-		val directories = getAllValuesDirectories(module)
+	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>, domain: Domain = Domain.DP) {
+		val directories = getAllValuesDirectories(module, domain)
 
 		directories.forEach { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory)
-			val string = strings.find { it.locale.getPackage().packageName == directory.name } ?: error("ABOBA")
+			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
 	}
 
-	private fun getAllValuesDirectories(module: Module): List<File> {
+	private fun getAllValuesDirectories(module: Module, domain: Domain): List<File> {
 		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
 		val resDirectoryPath = path + RES_DIRECTORY_PATH
 		val directories = File(resDirectoryPath)
 			.walk()
-			.filter { it.isDirectory && it.name in ResourcesPackage.packageList }
+			.filter { it.isDirectory && it.name in getPackageList(domain) }
 			.toList()
 
 		return directories
 	}
 
-	private fun getStringsFileFromDirectory(directory: File): File =
+	private fun getPackageList(domain: Domain): List<String> =
+		when (domain) {
+			Domain.DP   -> ResourcesPackage.packageNameList
+			Domain.LOAN -> ResourcesPackage.loanPackageNameList
+		}
+
+	private fun getStringsFileFromDirectory(directory: File, domain: Domain): File =
 		directory
 			.walk()
-			.find { it.isFile && it.name == STRINGS_FILE_NAME }
+			.find { it.isFile && it.name == domain.getStringFileName() }
 			?: throw IllegalArgumentException("No string file in directory ${directory.absolutePath}")
 
 	private fun writeStringInFile(file: File, string: ResourceString) {

@@ -5,6 +5,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.TextBrowseFolderListener
@@ -16,6 +17,7 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBUI.Borders
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.presentation.addfromexcel.StringAddFromExcelPresenter
 import com.string.wizard.stringwizard.ui.ButtonState
@@ -58,6 +60,7 @@ class StringAddFromExcelDialog(
 		const val NEW_STRING_DEFAULT_TEXT = "Choose source string first!"
 		const val NEW_STRING_LABEL = "Input new string name: "
 		const val TABLE_LABEL = "Excel string values: "
+		const val DOMAIN_LABEL = "Select domain: "
 
 		const val EXCEL_FILE_EXTENSION = "xlsx"
 
@@ -95,6 +98,10 @@ class StringAddFromExcelDialog(
 	private val newStringLabel = JBLabel(NEW_STRING_LABEL)
 	private val newStringInput = JBTextField(NEW_STRING_DEFAULT_TEXT, 50)
 
+	private val domainPanel = JPanel(HorizontalLayout())
+	private val domainLabel = JBLabel(DOMAIN_LABEL)
+	private val domainList = ComboBox(Domain.values())
+
 	private val tableLabel = JBLabel(TABLE_LABEL)
 	private val excelStringsTableColumns = arrayOf("Locale", "Copy from default", "Value")
 	private val tableDataModel = object : DefaultTableModel() {
@@ -130,11 +137,13 @@ class StringAddFromExcelDialog(
 		fileTextField.isEditable = false
 
 		fileSelectorPanel.apply {
+			border = Borders.emptyBottom(MAIN_BORDER)
 			add(selectorLabel)
 			add(fileSelector)
 		}
 
 		excelStringPanel.apply {
+			border = Borders.emptyBottom(MAIN_BORDER)
 			add(excelStringLabel)
 			add(excelStringButton)
 		}
@@ -150,6 +159,7 @@ class StringAddFromExcelDialog(
 		}
 
 		targetModulePanel.apply {
+			border = Borders.emptyBottom(MAIN_BORDER)
 			add(chosenTargetModuleLabel)
 			add(targetModuleButton)
 		}
@@ -162,6 +172,18 @@ class StringAddFromExcelDialog(
 			border = Borders.emptyBottom(MAIN_BORDER)
 			add(newStringLabel)
 			add(newStringInput)
+		}
+
+		domainList.apply {
+			selectedItem = Domain.DP
+			isEditable = false
+			addActionListener { (selectedItem as? Domain)?.let(presenter::selectDomain) }
+		}
+
+		domainPanel.apply {
+			border = Borders.emptyBottom(MAIN_BORDER)
+			add(domainLabel)
+			add(domainList)
 		}
 
 		tableLabel.apply {
@@ -208,6 +230,7 @@ class StringAddFromExcelDialog(
 			add(excelStringPanel)
 			add(targetModulePanel)
 			add(newStringPanel)
+			add(domainPanel)
 			add(tableLabel)
 			add(excelTablePanel)
 			add(attentionText)

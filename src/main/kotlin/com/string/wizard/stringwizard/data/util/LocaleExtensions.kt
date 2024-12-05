@@ -1,5 +1,6 @@
 package com.string.wizard.stringwizard.data.util
 
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.Locale.AZ
 import com.string.wizard.stringwizard.data.entity.Locale.Companion.enDefaultList
@@ -24,12 +25,18 @@ import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 
 fun Locale.getDefaultLocale(): Locale =
 	when (this) {
-		in enDefaultList -> Locale.EN
-		in ruDefaultList -> Locale.RU
-		else                    -> error("No default locale")
+		in enDefaultList -> EN
+		in ruDefaultList -> RU
+		else             -> error("No default locale")
 	}
 
-fun Locale.getPackage(): ResourcesPackage =
+fun Locale.getPackage(domain: Domain = Domain.DP): ResourcesPackage =
+	when (domain) {
+		Domain.DP   -> getDpPackage()
+		Domain.LOAN -> getLoanPackage()
+	}
+
+private fun Locale.getDpPackage(): ResourcesPackage =
 	when (this) {
 		EN -> ResourcesPackage.BASE
 		AZ -> ResourcesPackage.AZ
@@ -48,4 +55,17 @@ fun Locale.getPackage(): ResourcesPackage =
 		UK -> ResourcesPackage.UK
 		UZ -> ResourcesPackage.UZ
 		ZH -> ResourcesPackage.ZH
+	}
+
+private fun Locale.getLoanPackage(): ResourcesPackage =
+	when (this) {
+		RU   -> ResourcesPackage.BASE
+		AZ   -> ResourcesPackage.AZ
+		KA   -> ResourcesPackage.KA
+		KK   -> ResourcesPackage.KK
+		KY   -> ResourcesPackage.KY
+		RO   -> ResourcesPackage.RO
+		TG   -> ResourcesPackage.TG
+		UZ   -> ResourcesPackage.UZ
+		else -> error("Invalid locale for loans $name")
 	}

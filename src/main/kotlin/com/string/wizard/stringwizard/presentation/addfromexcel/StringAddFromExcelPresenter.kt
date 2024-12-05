@@ -4,10 +4,12 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.intellij.openapi.vfs.VirtualFile
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.repository.ExcelRepository
 import com.string.wizard.stringwizard.data.repository.StringRepository
+import com.string.wizard.stringwizard.data.util.getLocales
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.addfromexcel.AttentionTextState
 import com.string.wizard.stringwizard.ui.addfromexcel.StringAddFromExcelUi
@@ -27,7 +29,9 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 	private var excelFile: File? = null
 	private var excelStrings: List<ExcelString>? = null
+	private var filteredExcelStrings: List<ExcelString>? = null
 	private var selectedTargetModule: Module? = null
+	private var domain = Domain.DP
 
 	fun chooseFile(file: VirtualFile) {
 		excelFile = File(file.path)
@@ -53,9 +57,14 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 	fun selectExcelString(string: ExcelString) {
 		val excelFile = excelFile ?: return
 		val stringsForAllLocales = excelRepository.getStringsForAllLocale(excelFile, string)
+		val domainLocales = domain.getLocales()
+		val filteredExcelStrings = stringsForAllLocales.filter { it.locale in domainLocales }
+
 		excelStrings = stringsForAllLocales
+		this.filteredExcelStrings = filteredExcelStrings
+
 		ui.changeExcelString(formatExcelString(string.value, string.position, string.locale))
-		ui.showExcelStrings(stringsForAllLocales)
+		ui.showExcelStrings(filteredExcelStrings)
 	}
 
 	fun onTargetModuleSelectorClick() {
@@ -76,7 +85,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 			val selectedModule = selectedTargetModule ?: error("Module not selected!")
 			val resourcesStrings = excelStrings.map { stringConverter.convert(it, newStringName) }
 
-			stringRepository.writeNewStringsInAllLocale(selectedModule, resourcesStrings)
+			stringRepository.writeNewStringsInAllLocale(selectedModule, resourcesStrings, domain)
 			ui.setAttentionText("Success!", AttentionTextState.SUCCESS)
 		} catch (e: Exception) {
 			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
@@ -85,5 +94,16 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 	fun onDispose() {
 		excelRepository.close()
+	}
+
+	fun selectDomain(domain: Domain) {
+		this.domain = domain
+		val excelStrings = excelStrings ?: return
+		val domainLocales = domain.getLocales()
+		val filteredStrings = excelStrings.filter { it.locale in domainLocales }
+
+		this.filteredExcelStrings = filteredStrings
+
+		ui.showExcelStrings(filteredStrings)
 	}
 }
