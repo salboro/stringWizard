@@ -9,6 +9,7 @@ import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.repository.ExcelRepository
 import com.string.wizard.stringwizard.data.repository.StringRepository
 import com.string.wizard.stringwizard.ui.ButtonState
+import com.string.wizard.stringwizard.ui.addfromexcel.AttentionTextState
 import com.string.wizard.stringwizard.ui.addfromexcel.StringAddFromExcelUi
 import com.string.wizard.stringwizard.ui.util.formatExcelString
 import org.jetbrains.kotlin.idea.util.sourceRoots
@@ -44,7 +45,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 			ui.hideExcelStrings()
 			ui.showStringSelector(strings)
 		} catch (e: Exception) {
-			ui.showDebugText(e.message ?: "Unknown exception")
+			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
 			ui.hideExcelStrings()
 		}
 	}
@@ -76,9 +77,9 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 			val resourcesStrings = excelStrings.map { stringConverter.convert(it, newStringName) }
 
 			stringRepository.writeNewStringsInAllLocale(selectedModule, resourcesStrings)
-			ui.showDebugText("Success!")
+			ui.setAttentionText("Success!", AttentionTextState.SUCCESS)
 		} catch (e: Exception) {
-			ui.showDebugText(e.message ?: "Unknown exception")
+			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
 		}
 	}
 }
