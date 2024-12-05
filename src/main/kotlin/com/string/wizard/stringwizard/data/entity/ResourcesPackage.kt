@@ -21,9 +21,6 @@ enum class ResourcesPackage(val packageName: String) {
 
 	companion object {
 
-		val packageNameList = values().map { it.packageName }
-		val loanPackageNameList = listOf(BASE, AZ, KA, KK, KY, RO, RU, TG, UZ).map { it.packageName }
-
 		fun findByPackageName(packageName: String): ResourcesPackage? =
 			values().find { it.packageName == packageName }
 	}

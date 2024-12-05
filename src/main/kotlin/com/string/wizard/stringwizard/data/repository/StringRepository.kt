@@ -7,6 +7,7 @@ import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.util.XmlTemplate
 import com.string.wizard.stringwizard.data.util.getLocale
 import com.string.wizard.stringwizard.data.util.getPackage
+import com.string.wizard.stringwizard.data.util.getResourcesPackageList
 import com.string.wizard.stringwizard.data.util.getStringFileName
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
@@ -19,7 +20,7 @@ class StringRepository {
 	}
 
 	fun getStringResList(module: Module, domain: Domain): List<ResourceString> {
-		val allDirectories = getAllValuesDirectories(module, domain).ifEmpty { error("No strings in module ${module.name}") }
+		val allDirectories = getAllValuesDirectories(module, domain)
 		val defaultDirectory = allDirectories.find { it.name == ResourcesPackage.BASE.packageName } ?: allDirectories.first()
 		val stringsFile = getStringsFileFromDirectory(defaultDirectory, domain)
 
@@ -94,21 +95,33 @@ class StringRepository {
 	}
 
 	private fun getAllValuesDirectories(module: Module, domain: Domain): List<File> {
+		assertModule(module, domain)
+
 		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
 		val resDirectoryPath = path + RES_DIRECTORY_PATH
 		val directories = File(resDirectoryPath)
 			.walk()
-			.filter { it.isDirectory && it.name in getPackageList(domain) }
+			.filter { it.isDirectory && it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 			.toList()
 
 		return directories
 	}
 
-	private fun getPackageList(domain: Domain): List<String> =
-		when (domain) {
-			Domain.DP   -> ResourcesPackage.packageNameList
-			Domain.LOAN -> ResourcesPackage.loanPackageNameList
+	private fun assertModule(module: Module, domain: Domain) {
+		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
+		val resDirectoryPath = path + RES_DIRECTORY_PATH
+		val stringsFiles = File(resDirectoryPath)
+			.walk()
+			.filter { it.isFile && it.name.contains("strings") && it.name != "strings_untranslatable.xml" }
+			.toList()
+		val invalidFile = stringsFiles.find { it.name != domain.getStringFileName() }
+
+		when {
+			stringsFiles.isEmpty()                                    -> error("No strings in module ${module.name}")
+			invalidFile != null                                       -> error("File name ${invalidFile.name} not match domain ${domain.name}")
+			stringsFiles.size < domain.getResourcesPackageList().size -> error("Not enough resources packages for domain ${domain.name}")
 		}
+	}
 
 	private fun getStringsFileFromDirectory(directory: File, domain: Domain): File =
 		directory
