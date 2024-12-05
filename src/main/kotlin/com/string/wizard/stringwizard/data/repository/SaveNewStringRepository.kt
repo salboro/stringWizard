@@ -2,6 +2,7 @@ package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.Locale
+import com.string.wizard.stringwizard.data.entity.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.XmlTemplate
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
@@ -68,7 +69,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 		}
 
 		stringsFile?.let {
-			if (Locale.isEnLocale(file.name)) {
+			if (Locale.findByPackageName(file.name)?.getDefaultLocale() == Locale.EN) {
 				writeStringInTargetRes(it, name, defaultEnValue)
 			} else {
 				writeStringInTargetRes(it, name, defaultRuValue)
