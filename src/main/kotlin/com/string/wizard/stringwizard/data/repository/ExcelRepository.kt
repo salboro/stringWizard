@@ -3,7 +3,7 @@ package com.string.wizard.stringwizard.data.repository
 import com.intellij.openapi.util.io.FileUtil
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
-import com.string.wizard.stringwizard.data.entity.getDefaultLocale
+import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory

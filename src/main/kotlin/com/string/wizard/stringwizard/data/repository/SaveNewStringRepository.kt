@@ -2,8 +2,10 @@ package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.Locale
-import com.string.wizard.stringwizard.data.entity.getDefaultLocale
+import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.util.XmlTemplate
+import com.string.wizard.stringwizard.data.util.getDefaultLocale
+import com.string.wizard.stringwizard.data.util.getLocale
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
@@ -26,7 +28,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 		const val SEPARATOR = "\n"
 	}
 
-	private val listDpValues = Locale.packageList()
+	private val listDpValues = ResourcesPackage.values()
 
 	override fun add(targetModule: Module, name: String, defaultRuValue: String, defaultEnValue: String) {
 		val modulePath = getModulePath(targetModule)
@@ -69,7 +71,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 		}
 
 		stringsFile?.let {
-			if (Locale.findByPackageName(file.name)?.getDefaultLocale() == Locale.EN) {
+			if (ResourcesPackage.findByPackageName(file.name)?.getLocale()?.getDefaultLocale() == Locale.EN) {
 				writeStringInTargetRes(it, name, defaultEnValue)
 			} else {
 				writeStringInTargetRes(it, name, defaultRuValue)
@@ -93,7 +95,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 
 		listDpValues.forEach {
 			try {
-				File("$resPath${it}").mkdir()
+				File("$resPath${it.packageName}").mkdir()
 			} catch (e: Exception) {
 				throw Exception("не добавляются values + ${e.message}")
 			}

@@ -1,9 +1,11 @@
 package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
-import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourceString
+import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.util.XmlTemplate
+import com.string.wizard.stringwizard.data.util.getLocale
+import com.string.wizard.stringwizard.data.util.getPackage
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
@@ -17,7 +19,7 @@ class StringRepository {
 
 	fun getStringResList(module: Module): List<ResourceString> {
 		val allDirectories = getAllValuesDirectories(module).ifEmpty { error("No strings in module ${module.name}") }
-		val defaultDirectory = allDirectories.find { it.name == Locale.EN.packageName } ?: allDirectories.first()
+		val defaultDirectory = allDirectories.find { it.name == ResourcesPackage.BASE.packageName } ?: allDirectories.first()
 		val stringsFile = getStringsFileFromDirectory(defaultDirectory)
 
 		return getStrings(stringsFile, defaultDirectory.name)
@@ -25,7 +27,8 @@ class StringRepository {
 
 	private fun getStrings(stringsFile: File, directoryName: String): List<ResourceString> {
 		val resText = stringsFile.readText()
-		val locale = Locale.findByPackageName(directoryName) ?: throw IllegalArgumentException("Unexpected directory locale: ${stringsFile.absolutePath}")
+		val locale = ResourcesPackage.findByPackageName(directoryName)?.getLocale()
+			?: throw IllegalArgumentException("Unexpected directory locale: ${stringsFile.absolutePath}")
 
 		val rawStrings = resText
 			.substringAfter("<resources>")
@@ -60,7 +63,8 @@ class StringRepository {
 
 		return valuesDirectories.map { directory ->
 			val stringsFile = getStringsFileFromDirectory(directory)
-			val locale = Locale.findByPackageName(directory.name) ?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
+			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale()
+				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
 		}
 	}
@@ -83,7 +87,7 @@ class StringRepository {
 
 		directories.forEach { directory ->
 			val stringsFile = getStringsFileFromDirectory(directory)
-			val string = strings.find { it.locale.packageName == directory.name } ?: error("ABOBA")
+			val string = strings.find { it.locale.getPackage().packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
 	}
@@ -93,7 +97,7 @@ class StringRepository {
 		val resDirectoryPath = path + RES_DIRECTORY_PATH
 		val directories = File(resDirectoryPath)
 			.walk()
-			.filter { it.isDirectory && it.name in Locale.packageList() }
+			.filter { it.isDirectory && it.name in ResourcesPackage.packageList }
 			.toList()
 
 		return directories
