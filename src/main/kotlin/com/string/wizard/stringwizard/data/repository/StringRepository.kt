@@ -18,17 +18,17 @@ class StringRepository {
 		const val RES_DIRECTORY_PATH = "/src/main/res/"
 	}
 
-	fun getStringResList(module: Module): List<ResourceString> {
-		val allDirectories = getAllValuesDirectories(module, Domain.DP).ifEmpty { error("No strings in module ${module.name}") }
+	fun getStringResList(module: Module, domain: Domain): List<ResourceString> {
+		val allDirectories = getAllValuesDirectories(module, domain).ifEmpty { error("No strings in module ${module.name}") }
 		val defaultDirectory = allDirectories.find { it.name == ResourcesPackage.BASE.packageName } ?: allDirectories.first()
-		val stringsFile = getStringsFileFromDirectory(defaultDirectory, Domain.DP)
+		val stringsFile = getStringsFileFromDirectory(defaultDirectory, domain)
 
-		return getStrings(stringsFile, defaultDirectory.name)
+		return getStrings(stringsFile, defaultDirectory.name, domain)
 	}
 
-	private fun getStrings(stringsFile: File, directoryName: String): List<ResourceString> {
+	private fun getStrings(stringsFile: File, directoryName: String, domain: Domain): List<ResourceString> {
 		val resText = stringsFile.readText()
-		val locale = ResourcesPackage.findByPackageName(directoryName)?.getLocale()
+		val locale = ResourcesPackage.findByPackageName(directoryName)?.getLocale(domain)
 			?: throw IllegalArgumentException("Unexpected directory locale: ${stringsFile.absolutePath}")
 
 		val rawStrings = resText
@@ -52,19 +52,19 @@ class StringRepository {
 			.substringAfter("\">")
 			.substringBefore("</string>")
 
-	fun copyString(sourceModule: Module, targetModule: Module, stringSourceName: String, stringTargetName: String) {
-		val sourceStrings = getAllLocaleStrings(stringSourceName, sourceModule)
+	fun copyString(sourceModule: Module, targetModule: Module, stringSourceName: String, stringTargetName: String, domain: Domain) {
+		val sourceStrings = getAllLocaleStrings(stringSourceName, sourceModule, domain)
 		val stringsWithNewName = sourceStrings.map { it.copy(name = stringTargetName) }
 
-		writeNewStringsInAllLocale(targetModule, stringsWithNewName)
+		writeNewStringsInAllLocale(targetModule, stringsWithNewName, domain)
 	}
 
-	private fun getAllLocaleStrings(stringName: String, module: Module): List<ResourceString> {
-		val valuesDirectories = getAllValuesDirectories(module, Domain.DP)
+	private fun getAllLocaleStrings(stringName: String, module: Module, domain: Domain): List<ResourceString> {
+		val valuesDirectories = getAllValuesDirectories(module, domain)
 
 		return valuesDirectories.map { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory, Domain.DP)
-			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale()
+			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
 		}
@@ -83,7 +83,7 @@ class StringRepository {
 		}
 	}
 
-	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>, domain: Domain = Domain.DP) {
+	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>, domain: Domain) {
 		val directories = getAllValuesDirectories(module, domain)
 
 		directories.forEach { directory ->

@@ -4,6 +4,7 @@ import com.intellij.collaboration.ui.CollaborationToolsUIUtil.defaultButton
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.JBColor
@@ -11,7 +12,9 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
+import com.string.wizard.stringwizard.presentation.stringcopy.StringCopyDialogPresenter
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
@@ -53,6 +56,7 @@ class StringCopyDialog(
 		const val TARGET_MODULE_LABEL = "Chosen module: "
 		const val NEW_STRING_DEFAULT_TEXT = "Choose source string first!"
 		const val NEW_STRING_LABEL = "Input new string name: "
+		const val DOMAIN_LABEL = "Select domain: "
 
 		const val CANCEL = "Cancel"
 		const val OK = "OK"
@@ -90,6 +94,10 @@ class StringCopyDialog(
 	private val newStringPanel = JPanel(HorizontalLayout())
 	private val newStringLabel = JBLabel(NEW_STRING_LABEL)
 	private val newStringInput = JBTextField(NEW_STRING_DEFAULT_TEXT, 50)
+
+	private val domainPanel = JPanel(HorizontalLayout())
+	private val domainLabel = JBLabel(DOMAIN_LABEL)
+	private val domainList = ComboBox(Domain.values())
 
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 	private val cancelButton = JButton(CANCEL)
@@ -159,6 +167,18 @@ class StringCopyDialog(
 			add(newStringInput)
 		}
 
+		domainList.apply {
+			selectedItem = Domain.DP
+			isEditable = false
+			addActionListener { (selectedItem as? Domain)?.let(presenter::selectDomain) }
+		}
+
+		domainPanel.apply {
+			border = Borders.empty(MAIN_BORDER, 0)
+			add(domainLabel)
+			add(domainList)
+		}
+
 		copyButton.apply {
 			isEnabled = false
 			addActionListener { presenter.copy(newStringInput.text) }
@@ -194,6 +214,7 @@ class StringCopyDialog(
 			add(targetModulePanel)
 			add(newStringPanel)
 			add(JSeparator())
+			add(domainPanel)
 			add(attentionText)
 		}
 

@@ -1,6 +1,7 @@
 package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.util.XmlTemplate
@@ -71,7 +72,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 		}
 
 		stringsFile?.let {
-			if (ResourcesPackage.findByPackageName(file.name)?.getLocale()?.getDefaultLocale() == Locale.EN) {
+			if (ResourcesPackage.findByPackageName(file.name)?.getLocale(Domain.DP)?.getDefaultLocale() == Locale.EN) {
 				writeStringInTargetRes(it, name, defaultEnValue)
 			} else {
 				writeStringInTargetRes(it, name, defaultRuValue)

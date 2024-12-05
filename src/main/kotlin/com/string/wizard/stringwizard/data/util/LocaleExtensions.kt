@@ -30,7 +30,7 @@ fun Locale.getDefaultLocale(): Locale =
 		else             -> error("No default locale")
 	}
 
-fun Locale.getPackage(domain: Domain = Domain.DP): ResourcesPackage =
+fun Locale.getPackage(domain: Domain): ResourcesPackage =
 	when (domain) {
 		Domain.DP   -> getDpPackage()
 		Domain.LOAN -> getLoanPackage()

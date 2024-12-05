@@ -21,7 +21,7 @@ import com.string.wizard.stringwizard.data.entity.ResourcesPackage.UK
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage.UZ
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage.ZH
 
-fun ResourcesPackage.getLocale(domain: Domain = Domain.DP): Locale =
+fun ResourcesPackage.getLocale(domain: Domain): Locale =
 	when (domain) {
 		Domain.DP   -> getDpLocale()
 		Domain.LOAN -> getLoanLocale()
