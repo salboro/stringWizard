@@ -85,4 +85,8 @@ class ExcelRepository {
 			workbook = WorkbookFactory.create(file)
 			workbook!!.getSheetAt(0)
 		}
+
+	fun close() {
+		workbook?.close()
+	}
 }

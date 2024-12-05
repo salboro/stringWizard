@@ -82,4 +82,8 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
 		}
 	}
+
+	fun onDispose() {
+		excelRepository.close()
+	}
 }
