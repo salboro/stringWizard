@@ -32,8 +32,9 @@ fun Locale.getDefaultLocale(): Locale =
 
 fun Locale.getPackage(domain: Domain): ResourcesPackage =
 	when (domain) {
-		Domain.DP   -> getDpPackage()
-		Domain.LOAN -> getLoanPackage()
+		Domain.DP      -> getDpPackage()
+		Domain.LOAN    -> getLoanPackage()
+		Domain.EWALLET -> getEwalletPackage()
 	}
 
 private fun Locale.getDpPackage(): ResourcesPackage =
@@ -65,6 +66,15 @@ private fun Locale.getLoanPackage(): ResourcesPackage =
 		KK   -> ResourcesPackage.KK
 		KY   -> ResourcesPackage.KY
 		RO   -> ResourcesPackage.RO
+		TG   -> ResourcesPackage.TG
+		UZ   -> ResourcesPackage.UZ
+		else -> error("Invalid locale for loans $name")
+	}
+
+private fun Locale.getEwalletPackage(): ResourcesPackage =
+	when (this) {
+		RU   -> ResourcesPackage.BASE
+		KY   -> ResourcesPackage.KY
 		TG   -> ResourcesPackage.TG
 		UZ   -> ResourcesPackage.UZ
 		else -> error("Invalid locale for loans $name")

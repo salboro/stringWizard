@@ -23,8 +23,9 @@ import com.string.wizard.stringwizard.data.entity.ResourcesPackage.ZH
 
 fun ResourcesPackage.getLocale(domain: Domain): Locale =
 	when (domain) {
-		Domain.DP   -> getDpLocale()
-		Domain.LOAN -> getLoanLocale()
+		Domain.DP      -> getDpLocale()
+		Domain.LOAN    -> getLoanLocale()
+		Domain.EWALLET -> getEwalletLocale()
 	}
 
 private fun ResourcesPackage.getDpLocale(): Locale =
@@ -59,4 +60,13 @@ private fun ResourcesPackage.getLoanLocale(): Locale =
 		TG   -> Locale.TG
 		UZ   -> Locale.UZ
 		else -> error("Invalid package for loans $packageName")
+	}
+
+private fun ResourcesPackage.getEwalletLocale(): Locale =
+	when (this) {
+		BASE -> Locale.RU
+		KY   -> Locale.KY
+		TG   -> Locale.TG
+		UZ   -> Locale.UZ
+		else -> error("Invalid package for ewallet $packageName")
 	}
