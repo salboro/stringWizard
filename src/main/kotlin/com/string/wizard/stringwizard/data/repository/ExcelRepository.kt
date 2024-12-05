@@ -47,11 +47,13 @@ class ExcelRepository {
 		val localeRow = sheet.getRow(0)
 		val stringRow = sheet.getRow(excelString.position)
 
-		localeRow.forEach {
-			val localeValue = it.stringCellValue
-			val stringValue = stringRow.getCell(it.address.column).stringCellValue
+		for (cell in localeRow.toList()) {
+			val localeValue = cell.stringCellValue
+			val stringValue = stringRow.getCell(cell.address.column)?.stringCellValue.orEmpty()
 			if (localeValue.isNotBlank() && stringValue.isNotBlank()) {
 				result.add(ExcelString(stringValue, excelString.position, Locale.valueOf(localeValue)))
+			} else {
+				break
 			}
 		}
 
