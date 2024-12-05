@@ -57,6 +57,7 @@ class StringAddFromExcelDialog(
 		const val MODULE_SELECTOR_TITLE = "Search modules"
 		const val NEW_STRING_DEFAULT_TEXT = "Choose source string first!"
 		const val NEW_STRING_LABEL = "Input new string name: "
+		const val TABLE_LABEL = "Excel string values: "
 
 		const val EXCEL_FILE_EXTENSION = "xlsx"
 
@@ -94,6 +95,7 @@ class StringAddFromExcelDialog(
 	private val newStringLabel = JBLabel(NEW_STRING_LABEL)
 	private val newStringInput = JBTextField(NEW_STRING_DEFAULT_TEXT, 50)
 
+	private val tableLabel = JBLabel(TABLE_LABEL)
 	private val excelStringsTableColumns = arrayOf("Locale", "Copy from default", "Value")
 	private val tableDataModel = object : DefaultTableModel() {
 		override fun isCellEditable(row: Int, column: Int): Boolean {
@@ -162,6 +164,11 @@ class StringAddFromExcelDialog(
 			add(newStringInput)
 		}
 
+		tableLabel.apply {
+			isVisible = false
+			border = Borders.emptyTop(MAIN_BORDER)
+		}
+
 		tableDataModel.setColumnIdentifiers(excelStringsTableColumns)
 
 		excelStringsTable.apply {
@@ -172,7 +179,7 @@ class StringAddFromExcelDialog(
 		}
 
 		excelTablePanel.apply {
-			border = Borders.empty(MAIN_BORDER, 0)
+			border = Borders.emptyBottom(MAIN_BORDER)
 			horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
 			isVisible = false
 			preferredSize = Dimension(1000, 300)
@@ -201,6 +208,7 @@ class StringAddFromExcelDialog(
 			add(excelStringPanel)
 			add(targetModulePanel)
 			add(newStringPanel)
+			add(tableLabel)
 			add(excelTablePanel)
 			add(attentionText)
 		}
@@ -262,10 +270,12 @@ class StringAddFromExcelDialog(
 		excelStringsTable.adjustColumnWidths()
 
 		excelTablePanel.isVisible = true
+		tableLabel.isVisible = true
 	}
 
 	override fun hideExcelStrings() {
 		excelTablePanel.isVisible = false
+		tableLabel.isVisible = false
 	}
 
 	override fun showTargetModuleSelector(modules: List<Module>) {
@@ -288,5 +298,10 @@ class StringAddFromExcelDialog(
 			isEnabled = true
 			this.text = text
 		}
+	}
+
+	override fun dispose() {
+		presenter.onDispose()
+		super.dispose()
 	}
 }
