@@ -45,7 +45,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 	fun onExcelStringSelectClick() {
 		try {
 			val excelFile = excelFile ?: return
-			val strings = excelRepository.getStringsByLocale(excelFile, Locale.RU)
+			val strings = excelRepository.getStrings(excelFile, Locale.RU)
 
 			ui.hideExcelStrings()
 			ui.showStringSelector(strings)
@@ -57,7 +57,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 	fun selectExcelString(string: ExcelString) {
 		val excelFile = excelFile ?: return
-		val stringsForAllLocales = excelRepository.getStringsForAllLocale(excelFile, string)
+		val stringsForAllLocales = excelRepository.getStrings(excelFile, string.position)
 		val domainLocales = domain.getLocales()
 		val filteredExcelStrings = stringsForAllLocales.filter { it.locale in domainLocales }
 
