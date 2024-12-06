@@ -9,6 +9,7 @@ import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.repository.ExcelRepository
 import com.string.wizard.stringwizard.data.repository.StringRepository
+import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.getLocales
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.addfromexcel.AttentionTextState
@@ -105,5 +106,21 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 		this.filteredExcelStrings = filteredStrings
 
 		ui.showExcelStrings(filteredStrings)
+	}
+
+	fun changeExcelStringValue(newValue: String, stringIndex: Int) {
+		val excelStrings = excelStrings ?: return
+		val changedString = excelStrings[stringIndex]
+
+		val newStrings = excelStrings.mapIndexed { index, string ->
+			if (index == stringIndex || (string.locale.getDefaultLocale() == changedString.locale && string.value == changedString.value)) {
+				string.copy(value = newValue)
+			} else {
+				string
+			}
+		}
+
+		this.excelStrings = newStrings
+		ui.showExcelStrings(newStrings)
 	}
 }

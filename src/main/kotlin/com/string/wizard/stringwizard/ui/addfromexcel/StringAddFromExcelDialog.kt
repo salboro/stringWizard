@@ -104,11 +104,7 @@ class StringAddFromExcelDialog(
 
 	private val tableLabel = JBLabel(TABLE_LABEL)
 	private val excelStringsTableColumns = arrayOf("Locale", "Copy from default", "Value")
-	private val tableDataModel = object : DefaultTableModel() {
-		override fun isCellEditable(row: Int, column: Int): Boolean {
-			return false
-		}
-	}
+	private val tableDataModel = getTableModel()
 	private val excelStringsTable = JBTable(tableDataModel)
 	private val excelTablePanel = JBScrollPane(excelStringsTable)
 
@@ -327,4 +323,17 @@ class StringAddFromExcelDialog(
 		presenter.onDispose()
 		super.dispose()
 	}
+
+	private fun getTableModel(): DefaultTableModel =
+		object : DefaultTableModel() {
+			override fun isCellEditable(row: Int, column: Int): Boolean =
+				column == 2
+
+			override fun setValueAt(aValue: Any?, row: Int, column: Int) {
+				val newValue = (aValue as? String) ?: return
+				presenter.changeExcelStringValue(newValue, row)
+
+				super.setValueAt(aValue, row, column)
+			}
+		}
 }
