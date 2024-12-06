@@ -20,9 +20,11 @@ class NewStringRepository1 {
 	}
 
 	fun get(module: Module, domain: Domain, resourcesPackage: ResourcesPackage): List<ResourceString> {
-		val allDirectories = getValuesDirectories(module, domain)
+		assertModule(module, domain)
+
+		val allDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 		val defaultDirectory = allDirectories.find { it.name == resourcesPackage.packageName } ?: allDirectories.first()
-		val stringsFile = getStringsFileFromDirectory(defaultDirectory, domain)
+		val stringsFile = getFileFromDirectory(defaultDirectory) { it.name == domain.getStringFileName() }
 
 		return getStrings(stringsFile, defaultDirectory.name, domain)
 	}
@@ -54,10 +56,12 @@ class NewStringRepository1 {
 			.substringBefore("</string>")
 
 	fun get(module: Module, domain: Domain, stringName: String): List<ResourceString> {
-		val valuesDirectories = getValuesDirectories(module, domain)
+		assertModule(module, domain)
+
+		val valuesDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 
 		return valuesDirectories.map { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val stringsFile = getFileFromDirectory(directory) { it.name == domain.getStringFileName() }
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
@@ -78,12 +82,27 @@ class NewStringRepository1 {
 	}
 
 	fun write(module: Module, domain: Domain, strings: List<ResourceString>) {
-		val directories = getValuesDirectories(module, domain)
+		val directories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 
 		directories.forEach { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val stringsFile = getFileFromDirectory(directory) { it.name == domain.getStringFileName() }
 			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
+		}
+	}
+
+	fun sort(module: Module) {
+		val directories = getResourcesDirectories(module) { it.name.contains("values") }
+		val stringsFiles = directories.map { directory ->
+			getFileFromDirectory(directory) { it.name.contains("string") }
+		}
+
+		stringsFiles.forEach { file ->
+			val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
+			val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
+			val sortedStrings = strings.sorted()
+
+			file.writeText(XmlTemplate.resourceFileTemplate(sortedStrings))
 		}
 	}
 
@@ -101,14 +120,12 @@ class NewStringRepository1 {
 		}
 	}
 
-	private fun getValuesDirectories(module: Module, domain: Domain): List<File> {
-		assertModule(module, domain)
-
+	private fun getResourcesDirectories(module: Module, directoryFilterPredicate: (File) -> Boolean): List<File> {
 		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
 		val resDirectoryPath = path + RES_DIRECTORY_PATH
 		val directories = File(resDirectoryPath)
 			.walk()
-			.filter { it.isDirectory && it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
+			.filter { it.isDirectory && directoryFilterPredicate(it) }
 			.toList()
 
 		return directories
@@ -130,9 +147,9 @@ class NewStringRepository1 {
 		}
 	}
 
-	private fun getStringsFileFromDirectory(directory: File, domain: Domain): File =
+	private fun getFileFromDirectory(directory: File, filePredicate: (File) -> Boolean): File =
 		directory
 			.walk()
-			.find { it.isFile && it.name == domain.getStringFileName() }
+			.find { it.isFile && filePredicate(it) }
 			?: throw IllegalArgumentException("No string file in directory ${directory.absolutePath}")
 }
