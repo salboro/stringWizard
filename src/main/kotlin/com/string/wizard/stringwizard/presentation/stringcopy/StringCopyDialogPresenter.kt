@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
-import com.string.wizard.stringwizard.data.repository.StringRepository
+import com.string.wizard.stringwizard.domain.stringcopy.interactor.StringCopyInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialogUi
 import com.string.wizard.stringwizard.ui.util.formatResourceString
@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.idea.util.sourceRoots
 
 class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Project) {
 
-	private val stringRepository = StringRepository()
+	private val interactor = StringCopyInteractor()
 
 	private val filteredModules = project.modules.filter { module ->
 		module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
@@ -56,7 +56,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	fun onStringSelectionClick() {
 		try {
 			val module = selectedSourceModule ?: error("Choose source module first!")
-			val strings = stringRepository.getStringResList(module, domain)
+			val strings = interactor.getBaseStrings(module, domain)
 
 			ui.showSourceStringSelector(strings)
 			ui.hideStringSelectionFailed()
@@ -79,7 +79,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	fun copy(newStringName: String) {
 		if (newStringName.isNotBlank() && selectedTargetModule != null && selectedSourceModule != null && selectedString != null) {
 			try {
-				stringRepository.copyString(
+				interactor.copyString(
 					requireNotNull(selectedSourceModule),
 					requireNotNull(selectedTargetModule),
 					requireNotNull(selectedString?.name),
