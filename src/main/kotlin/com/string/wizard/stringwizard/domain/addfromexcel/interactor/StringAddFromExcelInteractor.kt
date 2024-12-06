@@ -5,14 +5,14 @@ import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.repository.ExcelRepository
-import com.string.wizard.stringwizard.data.repository.NewStringRepository1
+import com.string.wizard.stringwizard.data.repository.StringRepository
 import com.string.wizard.stringwizard.domain.addfromexcel.converter.StringConverter
 import java.io.File
 
 class StringAddFromExcelInteractor {
 
 	private val excelRepository = ExcelRepository()
-	private val stringRepository = NewStringRepository1()
+	private val stringRepository = StringRepository()
 	private val converter = StringConverter()
 
 	fun getExcelStrings(excelFile: File, locale: Locale): List<ExcelString> =

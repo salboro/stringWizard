@@ -4,11 +4,11 @@ import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
-import com.string.wizard.stringwizard.data.repository.NewStringRepository1
+import com.string.wizard.stringwizard.data.repository.StringRepository
 
 class StringCopyInteractor {
 
-	private val stringRepository = NewStringRepository1()
+	private val stringRepository = StringRepository()
 
 	fun getBaseStrings(module: Module, domain: Domain): List<ResourceString> =
 		stringRepository.get(module, domain, ResourcesPackage.BASE)
