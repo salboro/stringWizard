@@ -1,9 +1,14 @@
 package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
-import com.string.wizard.stringwizard.data.entity.Locale
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
+import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.util.XmlTemplate
+import com.string.wizard.stringwizard.data.util.getLocale
+import com.string.wizard.stringwizard.data.util.getPackage
+import com.string.wizard.stringwizard.data.util.getResourcesPackageList
+import com.string.wizard.stringwizard.data.util.getStringFileName
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
@@ -12,20 +17,20 @@ class StringRepository {
 	private companion object {
 
 		const val RES_DIRECTORY_PATH = "/src/main/res/"
-		const val STRINGS_FILE_NAME = "strings.xml"
 	}
 
-	fun getStringResList(module: Module): List<ResourceString> {
-		val allDirectories = getAllValuesDirectories(module).ifEmpty { error("No strings in module ${module.name}") }
-		val defaultDirectory = allDirectories.find { it.name == Locale.EN.packageName } ?: allDirectories.first()
-		val stringsFile = getStringsFileFromDirectory(defaultDirectory)
+	fun getStringResList(module: Module, domain: Domain): List<ResourceString> {
+		val allDirectories = getAllValuesDirectories(module, domain)
+		val defaultDirectory = allDirectories.find { it.name == ResourcesPackage.BASE.packageName } ?: allDirectories.first()
+		val stringsFile = getStringsFileFromDirectory(defaultDirectory, domain)
 
-		return getStrings(stringsFile, defaultDirectory.name)
+		return getStrings(stringsFile, defaultDirectory.name, domain)
 	}
 
-	private fun getStrings(stringsFile: File, directoryName: String): List<ResourceString> {
+	private fun getStrings(stringsFile: File, directoryName: String, domain: Domain): List<ResourceString> {
 		val resText = stringsFile.readText()
-		val locale = Locale.findByPackageName(directoryName) ?: throw IllegalArgumentException("Unexpected directory locale: ${stringsFile.absolutePath}")
+		val locale = ResourcesPackage.findByPackageName(directoryName)?.getLocale(domain)
+			?: throw IllegalArgumentException("Unexpected directory locale: ${stringsFile.absolutePath}")
 
 		val rawStrings = resText
 			.substringAfter("<resources>")
@@ -48,19 +53,20 @@ class StringRepository {
 			.substringAfter("\">")
 			.substringBefore("</string>")
 
-	fun copyString(sourceModule: Module, targetModule: Module, stringSourceName: String, stringTargetName: String) {
-		val sourceStrings = getAllLocaleStrings(stringSourceName, sourceModule)
+	fun copyString(sourceModule: Module, targetModule: Module, stringSourceName: String, stringTargetName: String, domain: Domain) {
+		val sourceStrings = getAllLocaleStrings(stringSourceName, sourceModule, domain)
 		val stringsWithNewName = sourceStrings.map { it.copy(name = stringTargetName) }
 
-		writeNewStringsInAllLocale(targetModule, stringsWithNewName)
+		writeNewStringsInAllLocale(targetModule, stringsWithNewName, domain)
 	}
 
-	private fun getAllLocaleStrings(stringName: String, module: Module): List<ResourceString> {
-		val valuesDirectories = getAllValuesDirectories(module)
+	private fun getAllLocaleStrings(stringName: String, module: Module, domain: Domain): List<ResourceString> {
+		val valuesDirectories = getAllValuesDirectories(module, domain)
 
 		return valuesDirectories.map { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory)
-			val locale = Locale.findByPackageName(directory.name) ?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
+			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
+				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
 		}
 	}
@@ -78,31 +84,49 @@ class StringRepository {
 		}
 	}
 
-	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>) {
-		val directories = getAllValuesDirectories(module)
+	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>, domain: Domain) {
+		val directories = getAllValuesDirectories(module, domain)
 
 		directories.forEach { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory)
-			val string = strings.find { it.locale.packageName == directory.name } ?: error("ABOBA")
+			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
 	}
 
-	private fun getAllValuesDirectories(module: Module): List<File> {
+	private fun getAllValuesDirectories(module: Module, domain: Domain): List<File> {
+		assertModule(module, domain)
+
 		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
 		val resDirectoryPath = path + RES_DIRECTORY_PATH
 		val directories = File(resDirectoryPath)
 			.walk()
-			.filter { it.isDirectory && it.name in Locale.packageList() }
+			.filter { it.isDirectory && it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 			.toList()
 
 		return directories
 	}
 
-	private fun getStringsFileFromDirectory(directory: File): File =
+	private fun assertModule(module: Module, domain: Domain) {
+		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
+		val resDirectoryPath = path + RES_DIRECTORY_PATH
+		val stringsFiles = File(resDirectoryPath)
+			.walk()
+			.filter { it.isFile && it.name.contains("strings") && it.name != "strings_untranslatable.xml" }
+			.toList()
+		val invalidFile = stringsFiles.find { it.name != domain.getStringFileName() }
+
+		when {
+			stringsFiles.isEmpty()                                    -> error("No strings in module ${module.name}")
+			invalidFile != null                                       -> error("File name ${invalidFile.name} not match domain ${domain.name}")
+			stringsFiles.size < domain.getResourcesPackageList().size -> error("Not enough resources packages for domain ${domain.name}")
+		}
+	}
+
+	private fun getStringsFileFromDirectory(directory: File, domain: Domain): File =
 		directory
 			.walk()
-			.find { it.isFile && it.name == STRINGS_FILE_NAME }
+			.find { it.isFile && it.name == domain.getStringFileName() }
 			?: throw IllegalArgumentException("No string file in directory ${directory.absolutePath}")
 
 	private fun writeStringInFile(file: File, string: ResourceString) {

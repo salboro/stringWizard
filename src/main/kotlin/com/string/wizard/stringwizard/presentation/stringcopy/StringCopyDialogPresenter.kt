@@ -1,11 +1,13 @@
-package com.string.wizard.stringwizard.ui.stringcopy
+package com.string.wizard.stringwizard.presentation.stringcopy
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
+import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.repository.StringRepository
 import com.string.wizard.stringwizard.ui.ButtonState
+import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialogUi
 import com.string.wizard.stringwizard.ui.util.formatResourceString
 import org.jetbrains.kotlin.idea.util.sourceRoots
 
@@ -21,6 +23,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	private var selectedTargetModule: Module? = null
 
 	private var selectedString: ResourceString? = null
+	private var domain = Domain.DP
 
 	fun onModulesChooserClick() {
 		ui.showSourceModulesSelector(filteredModules)
@@ -53,7 +56,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	fun onStringSelectionClick() {
 		try {
 			val module = selectedSourceModule ?: error("Choose source module first!")
-			val strings = stringRepository.getStringResList(module)
+			val strings = stringRepository.getStringResList(module, domain)
 
 			ui.showSourceStringSelector(strings)
 			ui.hideStringSelectionFailed()
@@ -80,7 +83,8 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 					requireNotNull(selectedSourceModule),
 					requireNotNull(selectedTargetModule),
 					requireNotNull(selectedString?.name),
-					newStringName
+					newStringName,
+					domain
 				)
 
 				ui.showSuccess(
@@ -93,5 +97,9 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 				ui.showCopyFailed(e)
 			}
 		}
+	}
+
+	fun selectDomain(domain: Domain) {
+		this.domain = domain
 	}
 }

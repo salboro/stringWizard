@@ -3,7 +3,7 @@ package com.string.wizard.stringwizard.data.repository
 import com.intellij.openapi.util.io.FileUtil
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
-import com.string.wizard.stringwizard.data.entity.getDefaultLocale
+import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
@@ -47,11 +47,13 @@ class ExcelRepository {
 		val localeRow = sheet.getRow(0)
 		val stringRow = sheet.getRow(excelString.position)
 
-		localeRow.forEach {
-			val localeValue = it.stringCellValue
-			val stringValue = stringRow.getCell(it.address.column).stringCellValue
+		for (cell in localeRow.toList()) {
+			val localeValue = cell.stringCellValue
+			val stringValue = stringRow.getCell(cell.address.column)?.stringCellValue.orEmpty()
 			if (localeValue.isNotBlank() && stringValue.isNotBlank()) {
 				result.add(ExcelString(stringValue, excelString.position, Locale.valueOf(localeValue)))
+			} else {
+				break
 			}
 		}
 
