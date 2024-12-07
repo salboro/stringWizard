@@ -61,6 +61,8 @@ class StringAddFromExcelDialog(
 		const val NEW_STRING_LABEL = "Input new string name: "
 		const val TABLE_LABEL = "Excel string values: "
 		const val DOMAIN_LABEL = "Select domain: "
+		const val CREATE_FILE_LABEL = "Create file by selected domain "
+		const val CREATE_FILE_BUTTON = "Create file"
 
 		const val EXCEL_FILE_EXTENSION = "xlsx"
 
@@ -108,12 +110,16 @@ class StringAddFromExcelDialog(
 	private val excelStringsTable = JBTable(tableDataModel)
 	private val excelTablePanel = JBScrollPane(excelStringsTable)
 
+	private val attentionText = JBLabel()
+
+	private val createFilesPanel = JPanel(HorizontalLayout())
+	private val createFilesLabel = JBLabel(CREATE_FILE_LABEL)
+	private val createFilesButton = JButton(CREATE_FILE_BUTTON)
+
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 	private val cancelButton = JButton(CANCEL)
 	private val okButton = JButton(OK).defaultButton()
 	private val addButton = JButton(ADD).defaultButton()
-
-	private val attentionText = JBLabel()
 
 	private val browseListener = object : TextBrowseFolderListener(fileDescriptor) {
 		override fun onFileChosen(chosenFile: VirtualFile) {
@@ -158,6 +164,15 @@ class StringAddFromExcelDialog(
 			border = Borders.emptyBottom(MAIN_BORDER)
 			add(chosenTargetModuleLabel)
 			add(targetModuleButton)
+		}
+
+		createFilesButton.addActionListener { presenter.createStringFiles() }
+
+		createFilesPanel.apply {
+			isVisible = false
+			border = Borders.emptyBottom(MAIN_BORDER)
+			add(createFilesLabel)
+			add(createFilesButton)
 		}
 
 		newStringInput.apply {
@@ -215,6 +230,10 @@ class StringAddFromExcelDialog(
 			addActionListener { super.doOKAction() }
 		}
 
+		attentionText.apply {
+			border = Borders.emptyBottom(MAIN_BORDER)
+		}
+
 		buttonsPanel.apply {
 			add(cancelButton)
 			add(addButton)
@@ -230,6 +249,7 @@ class StringAddFromExcelDialog(
 			add(tableLabel)
 			add(excelTablePanel)
 			add(attentionText)
+			add(createFilesPanel)
 		}
 
 		dialogPanel.apply {
@@ -336,4 +356,8 @@ class StringAddFromExcelDialog(
 				super.setValueAt(aValue, row, column)
 			}
 		}
+
+	override fun setCreateFilesButtonVisible(visible: Boolean) {
+		createFilesPanel.isVisible = visible
+	}
 }

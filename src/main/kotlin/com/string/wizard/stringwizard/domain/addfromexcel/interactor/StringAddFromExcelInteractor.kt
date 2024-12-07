@@ -5,6 +5,7 @@ import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.repository.ExcelRepository
+import com.string.wizard.stringwizard.data.repository.ResourceRepository
 import com.string.wizard.stringwizard.data.repository.StringRepository
 import com.string.wizard.stringwizard.domain.addfromexcel.converter.StringConverter
 import java.io.File
@@ -13,6 +14,7 @@ class StringAddFromExcelInteractor {
 
 	private val excelRepository = ExcelRepository()
 	private val stringRepository = StringRepository()
+	private val resourceRepository = ResourceRepository()
 	private val converter = StringConverter()
 
 	fun getExcelStrings(excelFile: File, locale: Locale): List<ExcelString> =
@@ -29,5 +31,9 @@ class StringAddFromExcelInteractor {
 
 	fun closeExcel() {
 		excelRepository.close()
+	}
+
+	fun createStringFiles(module: Module, domain: Domain) {
+		resourceRepository.makeStringFiles(module, domain)
 	}
 }

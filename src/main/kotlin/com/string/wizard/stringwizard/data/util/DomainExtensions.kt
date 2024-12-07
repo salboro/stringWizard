@@ -15,7 +15,7 @@ fun Domain.getLocales(): List<Locale> =
 	when (this) {
 		DP   -> Locale.values().toList()
 		LOAN -> listOf(Locale.AZ, Locale.KA, Locale.KK, Locale.KY, Locale.RO, Locale.RU, Locale.TG, Locale.UZ)
-		EWALLET -> listOf(Locale.RU, Locale.KA, Locale.TG, Locale.UZ)
+		EWALLET -> listOf(Locale.RU, Locale.KY, Locale.TG, Locale.UZ)
 	}
 
 fun Domain.getStringFileName(): String =
@@ -36,7 +36,6 @@ fun Domain.getResourcesPackageList(): List<ResourcesPackage> =
 			ResourcesPackage.KK,
 			ResourcesPackage.KY,
 			ResourcesPackage.RO,
-			ResourcesPackage.RU,
 			ResourcesPackage.TG,
 			ResourcesPackage.UZ
 		)

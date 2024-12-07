@@ -4,6 +4,7 @@ import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
+import com.string.wizard.stringwizard.data.exception.StringFileException
 import com.string.wizard.stringwizard.data.util.XmlTemplate
 import com.string.wizard.stringwizard.data.util.getLocale
 import com.string.wizard.stringwizard.data.util.getPackage
@@ -82,6 +83,8 @@ class StringRepository {
 	}
 
 	fun write(module: Module, domain: Domain, strings: List<ResourceString>) {
+		assertModule(module, domain)
+
 		val directories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 
 		directories.forEach { directory ->
@@ -140,11 +143,14 @@ class StringRepository {
 			.toList()
 		val invalidFile = stringsFiles.find { it.name != domain.getStringFileName() }
 
-		when {
-			stringsFiles.isEmpty()                                    -> error("No strings in module ${module.name}")
-			invalidFile != null                                       -> error("File name ${invalidFile.name} not match domain ${domain.name}")
-			stringsFiles.size < domain.getResourcesPackageList().size -> error("Not enough resources packages for domain ${domain.name}")
+		val errorText = when {
+			stringsFiles.isEmpty()                                    -> "No strings in module ${module.name}"
+			invalidFile != null                                       -> "File name ${invalidFile.name} not match domain ${domain.name}"
+			stringsFiles.size < domain.getResourcesPackageList().size -> "Not enough resources packages for domain ${domain.name}"
+			else                                                      -> null
 		}
+
+		errorText?.let { throw StringFileException(it) }
 	}
 
 	private fun getFileFromDirectory(directory: File, filePredicate: (File) -> Boolean): File =
