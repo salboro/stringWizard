@@ -141,11 +141,9 @@ class StringRepository {
 			.walk()
 			.filter { it.isFile && it.name.contains("strings") && it.name != "strings_untranslatable.xml" }
 			.toList()
-		val invalidFile = stringsFiles.find { it.name != domain.getStringFileName() }
 
 		val errorText = when {
 			stringsFiles.isEmpty()                                    -> "No strings in module ${module.name}"
-			invalidFile != null                                       -> "File name ${invalidFile.name} not match domain ${domain.name}"
 			stringsFiles.size < domain.getResourcesPackageList().size -> "Not enough resources packages for domain ${domain.name}"
 			else                                                      -> null
 		}
