@@ -25,7 +25,8 @@ class StringRepository {
 
 		val allDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 		val defaultDirectory = allDirectories.find { it.name == resourcesPackage.packageName } ?: allDirectories.first()
-		val stringsFile = getFileFromDirectory(defaultDirectory) { it.name == domain.getStringFileName() }
+		val stringFileName = domain.getStringFileName()
+		val stringsFile = getFileFromDirectory(defaultDirectory, stringFileName) { it.name == stringFileName }
 
 		return getStrings(stringsFile, defaultDirectory.name, domain)
 	}
@@ -62,7 +63,8 @@ class StringRepository {
 		val valuesDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 
 		return valuesDirectories.map { directory ->
-			val stringsFile = getFileFromDirectory(directory) { it.name == domain.getStringFileName() }
+			val stringFileName = domain.getStringFileName()
+			val stringsFile = getFileFromDirectory(directory, stringFileName) { it.name == stringFileName }
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
@@ -88,7 +90,8 @@ class StringRepository {
 		val directories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 
 		directories.forEach { directory ->
-			val stringsFile = getFileFromDirectory(directory) { it.name == domain.getStringFileName() }
+			val stringFileName = domain.getStringFileName()
+			val stringsFile = getFileFromDirectory(directory, stringFileName) { it.name == stringFileName }
 			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
@@ -97,7 +100,7 @@ class StringRepository {
 	fun sort(module: Module) {
 		val directories = getResourcesDirectories(module) { it.name.contains("values") }
 		val stringsFiles = directories.map { directory ->
-			getFileFromDirectory(directory) { it.name.contains("string") }
+			getFileFromDirectory(directory, "string") { it.name.contains("string") }
 		}
 
 		stringsFiles.forEach { file ->
@@ -141,19 +144,20 @@ class StringRepository {
 			.walk()
 			.filter { it.isFile && it.name.contains("strings") && it.name != "strings_untranslatable.xml" }
 			.toList()
+		val domainStringsFiles = stringsFiles.filter { it.name == domain.getStringFileName() }
 
 		val errorText = when {
-			stringsFiles.isEmpty()                                    -> "No strings in module ${module.name}"
-			stringsFiles.size < domain.getResourcesPackageList().size -> "Not enough resources packages for domain ${domain.name}"
-			else                                                      -> null
+			stringsFiles.isEmpty()                                          -> "No strings in module ${module.name}"
+			domainStringsFiles.size < domain.getResourcesPackageList().size -> "Not enough resources packages for domain ${domain.name}"
+			else                                                            -> null
 		}
 
 		errorText?.let { throw StringFileException(it) }
 	}
 
-	private fun getFileFromDirectory(directory: File, filePredicate: (File) -> Boolean): File =
+	private fun getFileFromDirectory(directory: File, fileName: String, filePredicate: (File) -> Boolean): File =
 		directory
 			.walk()
 			.find { it.isFile && filePredicate(it) }
-			?: throw IllegalArgumentException("No string file in directory ${directory.absolutePath}")
+			?: throw IllegalArgumentException("No $fileName file in directory ${directory.absolutePath}")
 }
