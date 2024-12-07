@@ -9,7 +9,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
-import com.string.wizard.stringwizard.domain.usecase.GetResPathUseCase
+import com.string.wizard.stringwizard.domain.stringsort.interactor.StringSortInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
@@ -18,7 +18,6 @@ import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
-import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import org.jetbrains.kotlin.idea.util.sourceRoots
 import java.awt.Dimension
 import javax.swing.JButton
@@ -86,9 +85,9 @@ class StringSortDialog(val project: Project, dialogTitle: String) : DialogWrappe
 
 	override fun doOKAction() {
 		if (targetModule != null) {
-			val moduleStringsSorter = ModuleStringResSorter(GetResPathUseCase())
+			val interactor = StringSortInteractor()
 			try {
-				targetModule?.externalProjectPath?.let { strings -> moduleStringsSorter.sort(strings) }
+				targetModule?.let(interactor::sort)
 				super.doOKAction()
 			} catch (e: Exception) {
 				// stay tuned

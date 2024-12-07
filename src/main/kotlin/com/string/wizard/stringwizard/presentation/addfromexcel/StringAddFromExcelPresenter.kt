@@ -7,10 +7,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
-import com.string.wizard.stringwizard.data.repository.ExcelRepository
-import com.string.wizard.stringwizard.data.repository.StringRepository
 import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.getLocales
+import com.string.wizard.stringwizard.domain.addfromexcel.interactor.StringAddFromExcelInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.addfromexcel.AttentionTextState
 import com.string.wizard.stringwizard.ui.addfromexcel.StringAddFromExcelUi
@@ -20,9 +19,7 @@ import java.io.File
 
 class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project: Project) {
 
-	private val excelRepository = ExcelRepository()
-	private val stringRepository = StringRepository()
-	private val stringConverter = StringConverter()
+	private val interactor = StringAddFromExcelInteractor()
 
 	private val filteredModules = project.modules.filter { module ->
 		module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
@@ -45,7 +42,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 	fun onExcelStringSelectClick() {
 		try {
 			val excelFile = excelFile ?: return
-			val strings = excelRepository.getStringsByLocale(excelFile, Locale.RU)
+			val strings = interactor.getExcelStrings(excelFile, Locale.RU)
 
 			ui.hideExcelStrings()
 			ui.showStringSelector(strings)
@@ -57,7 +54,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 	fun selectExcelString(string: ExcelString) {
 		val excelFile = excelFile ?: return
-		val stringsForAllLocales = excelRepository.getStringsForAllLocale(excelFile, string)
+		val stringsForAllLocales = interactor.getExcelStrings(excelFile, string.position)
 		val domainLocales = domain.getLocales()
 		val filteredExcelStrings = stringsForAllLocales.filter { it.locale in domainLocales }
 
@@ -82,11 +79,10 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 	fun add(newStringName: String) {
 		try {
-			val excelStrings = excelStrings ?: error("Excel string not selected!")
+			val excelStrings = filteredExcelStrings ?: error("Excel string not selected!")
 			val selectedModule = selectedTargetModule ?: error("Module not selected!")
-			val resourcesStrings = excelStrings.map { stringConverter.convert(it, newStringName) }
 
-			stringRepository.writeNewStringsInAllLocale(selectedModule, resourcesStrings, domain)
+			interactor.writeStrings(excelStrings, domain, newStringName, selectedModule)
 			ui.setAttentionText("Success!", AttentionTextState.SUCCESS)
 		} catch (e: Exception) {
 			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
@@ -94,7 +90,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 	}
 
 	fun onDispose() {
-		excelRepository.close()
+		interactor.closeExcel()
 	}
 
 	fun selectDomain(domain: Domain) {

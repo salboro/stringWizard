@@ -19,10 +19,12 @@ class StringRepository {
 		const val RES_DIRECTORY_PATH = "/src/main/res/"
 	}
 
-	fun getStringResList(module: Module, domain: Domain): List<ResourceString> {
-		val allDirectories = getAllValuesDirectories(module, domain)
-		val defaultDirectory = allDirectories.find { it.name == ResourcesPackage.BASE.packageName } ?: allDirectories.first()
-		val stringsFile = getStringsFileFromDirectory(defaultDirectory, domain)
+	fun get(module: Module, domain: Domain, resourcesPackage: ResourcesPackage): List<ResourceString> {
+		assertModule(module, domain)
+
+		val allDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
+		val defaultDirectory = allDirectories.find { it.name == resourcesPackage.packageName } ?: allDirectories.first()
+		val stringsFile = getFileFromDirectory(defaultDirectory) { it.name == domain.getStringFileName() }
 
 		return getStrings(stringsFile, defaultDirectory.name, domain)
 	}
@@ -53,18 +55,13 @@ class StringRepository {
 			.substringAfter("\">")
 			.substringBefore("</string>")
 
-	fun copyString(sourceModule: Module, targetModule: Module, stringSourceName: String, stringTargetName: String, domain: Domain) {
-		val sourceStrings = getAllLocaleStrings(stringSourceName, sourceModule, domain)
-		val stringsWithNewName = sourceStrings.map { it.copy(name = stringTargetName) }
+	fun get(module: Module, domain: Domain, stringName: String): List<ResourceString> {
+		assertModule(module, domain)
 
-		writeNewStringsInAllLocale(targetModule, stringsWithNewName, domain)
-	}
-
-	private fun getAllLocaleStrings(stringName: String, module: Module, domain: Domain): List<ResourceString> {
-		val valuesDirectories = getAllValuesDirectories(module, domain)
+		val valuesDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 
 		return valuesDirectories.map { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val stringsFile = getFileFromDirectory(directory) { it.name == domain.getStringFileName() }
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
@@ -84,24 +81,51 @@ class StringRepository {
 		}
 	}
 
-	fun writeNewStringsInAllLocale(module: Module, strings: List<ResourceString>, domain: Domain) {
-		val directories = getAllValuesDirectories(module, domain)
+	fun write(module: Module, domain: Domain, strings: List<ResourceString>) {
+		val directories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
 
 		directories.forEach { directory ->
-			val stringsFile = getStringsFileFromDirectory(directory, domain)
+			val stringsFile = getFileFromDirectory(directory) { it.name == domain.getStringFileName() }
 			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
 	}
 
-	private fun getAllValuesDirectories(module: Module, domain: Domain): List<File> {
-		assertModule(module, domain)
+	fun sort(module: Module) {
+		val directories = getResourcesDirectories(module) { it.name.contains("values") }
+		val stringsFiles = directories.map { directory ->
+			getFileFromDirectory(directory) { it.name.contains("string") }
+		}
 
+		stringsFiles.forEach { file ->
+			val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
+			val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
+			val sortedStrings = strings.sorted()
+
+			file.writeText(XmlTemplate.resourceFileTemplate(sortedStrings))
+		}
+	}
+
+	private fun writeStringInFile(file: File, string: ResourceString) {
+		val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
+		val newString = XmlTemplate.stringTemplate(name = string.name, value = string.value)
+		val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
+
+		if (strings.any { it.contains(string.name) }) {
+			throw IllegalArgumentException("${string.name} already exist in ${file.path}")
+		} else {
+			val resultStrings = strings + newString
+			val sortedStrings = resultStrings.sorted()
+			file.writeText(XmlTemplate.resourceFileTemplate(sortedStrings))
+		}
+	}
+
+	private fun getResourcesDirectories(module: Module, directoryFilterPredicate: (File) -> Boolean): List<File> {
 		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
 		val resDirectoryPath = path + RES_DIRECTORY_PATH
 		val directories = File(resDirectoryPath)
 			.walk()
-			.filter { it.isDirectory && it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
+			.filter { it.isDirectory && directoryFilterPredicate(it) }
 			.toList()
 
 		return directories
@@ -123,23 +147,9 @@ class StringRepository {
 		}
 	}
 
-	private fun getStringsFileFromDirectory(directory: File, domain: Domain): File =
+	private fun getFileFromDirectory(directory: File, filePredicate: (File) -> Boolean): File =
 		directory
 			.walk()
-			.find { it.isFile && it.name == domain.getStringFileName() }
+			.find { it.isFile && filePredicate(it) }
 			?: throw IllegalArgumentException("No string file in directory ${directory.absolutePath}")
-
-	private fun writeStringInFile(file: File, string: ResourceString) {
-		val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
-		val newString = XmlTemplate.stringTemplate(name = string.name, value = string.value)
-		val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
-
-		if (strings.any { it.contains(string.name) }) {
-			throw IllegalArgumentException("${string.name} already exist in ${file.path}")
-		} else {
-			val resultStrings = strings + newString
-			val sortedStrings = resultStrings.sorted()
-			file.writeText(XmlTemplate.resourceFileTemplate(sortedStrings))
-		}
-	}
 }

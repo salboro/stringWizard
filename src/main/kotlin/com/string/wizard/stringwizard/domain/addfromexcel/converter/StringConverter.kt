@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.presentation.addfromexcel
+package com.string.wizard.stringwizard.domain.addfromexcel.converter
 
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.ResourceString

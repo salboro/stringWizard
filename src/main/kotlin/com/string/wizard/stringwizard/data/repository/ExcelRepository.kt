@@ -14,7 +14,7 @@ class ExcelRepository {
 	private var file: File? = null
 	private var workbook: Workbook? = null
 
-	fun getStringsByLocale(file: File, locale: Locale): List<ExcelString> {
+	fun getStrings(file: File, locale: Locale): List<ExcelString> {
 		val result = mutableListOf<ExcelString>()
 		val sheet = getSheet(file)
 
@@ -40,18 +40,18 @@ class ExcelRepository {
 		return result
 	}
 
-	fun getStringsForAllLocale(file: File, excelString: ExcelString): List<ExcelString> {
+	fun getStrings(file: File, position: Int): List<ExcelString> {
 		val result = mutableListOf<ExcelString>()
 		val sheet = getSheet(file)
 
 		val localeRow = sheet.getRow(0)
-		val stringRow = sheet.getRow(excelString.position)
+		val stringRow = sheet.getRow(position)
 
 		for (cell in localeRow.toList()) {
 			val localeValue = cell.stringCellValue
 			val stringValue = stringRow.getCell(cell.address.column)?.stringCellValue.orEmpty()
 			if (localeValue.isNotBlank() && stringValue.isNotBlank()) {
-				result.add(ExcelString(stringValue, excelString.position, Locale.valueOf(localeValue)))
+				result.add(ExcelString(stringValue, position, Locale.valueOf(localeValue)))
 			} else {
 				break
 			}
