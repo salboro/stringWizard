@@ -26,9 +26,13 @@ interface StringCopyDialogUi {
 
 	fun showSuccess(sourceModuleName: String, targetModuleName: String, sourceStringName: String, newStringName: String)
 
+	fun showSuccessCreateFiles()
+
 	fun showCopyFailed(exception: Exception)
 
 	fun showStringSelectionFailed(exception: Exception)
 
 	fun hideStringSelectionFailed()
+
+	fun setCreateFilesButtonVisible(visible: Boolean)
 }

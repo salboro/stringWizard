@@ -34,6 +34,6 @@ class StringAddFromExcelInteractor {
 	}
 
 	fun createStringFiles(module: Module, domain: Domain) {
-		resourceRepository.makeStringFiles(module, domain)
+		resourceRepository.createStringFiles(module, domain)
 	}
 }

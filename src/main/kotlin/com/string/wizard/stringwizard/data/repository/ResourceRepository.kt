@@ -23,7 +23,7 @@ class ResourceRepository {
 	 * @param module модуль в котором будут создаваться строковые файлы
 	 * @param domain домен, в соответствии с которым будут создаваться файлы
 	 */
-	fun makeStringFiles(module: Module, domain: Domain) {
+	fun createStringFiles(module: Module, domain: Domain) {
 		val packageNames = domain.getResourcesPackageList().map { it.packageName }
 		val resPath = module.externalProjectPath + RES_DIRECTORY_PATH
 		val stringFileName = domain.getStringFileName()

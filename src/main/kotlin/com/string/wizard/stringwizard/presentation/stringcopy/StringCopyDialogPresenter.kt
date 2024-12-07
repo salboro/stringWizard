@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
+import com.string.wizard.stringwizard.data.exception.StringFileException
 import com.string.wizard.stringwizard.domain.stringcopy.interactor.StringCopyInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialogUi
@@ -48,6 +49,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 		selectedTargetModule = module
 
 		ui.changeTargetModuleButton(module.name, ButtonState.FILLED)
+		ui.setCreateFilesButtonVisible(false)
 		if (selectedString != null) {
 			ui.changeCopyButtonEnabled(true)
 		}
@@ -93,6 +95,10 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 					requireNotNull(selectedString?.name),
 					newStringName
 				)
+				ui.setCreateFilesButtonVisible(false)
+			} catch (e: StringFileException) {
+				ui.showCopyFailed(e)
+				ui.setCreateFilesButtonVisible(true)
 			} catch (e: Exception) {
 				ui.showCopyFailed(e)
 			}
@@ -101,5 +107,18 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 
 	fun selectDomain(domain: Domain) {
 		this.domain = domain
+		ui.setCreateFilesButtonVisible(false)
+	}
+
+	fun createStringFiles() {
+		val selectedTargetModule = selectedTargetModule ?: error("Module not selected!")
+
+		try {
+			interactor.createStringFiles(selectedTargetModule, domain)
+			ui.setCreateFilesButtonVisible(false)
+			ui.showSuccessCreateFiles()
+		} catch (e: Exception) {
+			ui.showCopyFailed(e)
+		}
 	}
 }
