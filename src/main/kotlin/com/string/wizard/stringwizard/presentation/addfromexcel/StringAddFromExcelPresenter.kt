@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
+import com.string.wizard.stringwizard.data.exception.StringFileException
 import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.getLocales
 import com.string.wizard.stringwizard.domain.addfromexcel.interactor.StringAddFromExcelInteractor
@@ -75,6 +76,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 		ui.changeTargetModuleButton(module.name, ButtonState.FILLED)
 		ui.changeNewStringName(module.name)
+		ui.setCreateFilesButtonVisible(false)
 	}
 
 	fun add(newStringName: String) {
@@ -84,6 +86,10 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 			interactor.writeStrings(excelStrings, domain, newStringName, selectedModule)
 			ui.setAttentionText("Success!", AttentionTextState.SUCCESS)
+			ui.setCreateFilesButtonVisible(false)
+		} catch (e: StringFileException) {
+			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
+			ui.setCreateFilesButtonVisible(true)
 		} catch (e: Exception) {
 			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
 		}
@@ -102,6 +108,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 		this.filteredExcelStrings = filteredStrings
 
 		ui.showExcelStrings(filteredStrings)
+		ui.setCreateFilesButtonVisible(false)
 	}
 
 	fun changeExcelStringValue(newValue: String, stringIndex: Int) {
@@ -118,5 +125,17 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 		this.excelStrings = newStrings
 		ui.showExcelStrings(newStrings)
+	}
+
+	fun createStringFiles() {
+		val selectedTargetModule = selectedTargetModule ?: error("Module not selected!")
+
+		try {
+			interactor.createStringFiles(selectedTargetModule, domain)
+			ui.setCreateFilesButtonVisible(false)
+			ui.setAttentionText("Files successfully created!", AttentionTextState.SUCCESS)
+		} catch (e: Exception) {
+			ui.setAttentionText(e.message ?: "Unknown error", AttentionTextState.ERROR)
+		}
 	}
 }

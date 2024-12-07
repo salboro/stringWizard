@@ -77,5 +77,5 @@ private fun Locale.getEwalletPackage(): ResourcesPackage =
 		KY   -> ResourcesPackage.KY
 		TG   -> ResourcesPackage.TG
 		UZ   -> ResourcesPackage.UZ
-		else -> error("Invalid locale for loans $name")
+		else -> error("Invalid locale for ewallet $name")
 	}

@@ -23,4 +23,6 @@ interface StringAddFromExcelUi {
 	fun changeTargetModuleButton(text: String, state: ButtonState)
 
 	fun changeNewStringName(text: String)
+
+	fun setCreateFilesButtonVisible(visible: Boolean)
 }

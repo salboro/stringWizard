@@ -28,59 +28,46 @@
 
 	<actions>
 		<group
-			id="org.intellij.sdk.action.GroupedActions"
+			id="com.string.wizard.stringwizard.KabanWizard"
 			text="Kaban Wizard"
 			popup="true"
 			icon="com.string.wizard.stringwizard.ui.resources.Icons.KabanSmall">
 
-			<add-to-group
-				group-id="ToolsMenu"
-				anchor="after"
-				relative-to-action="StringCopyAction"/>
-
 			<action
 				icon="AllIcons.Actions.Copy"
-				id="StringCopyAction"
+				id="com.string.wizard.stringwizard.action.StringCopyAction"
 				class="com.string.wizard.stringwizard.action.StringCopyAction"
 				text="String Copy"
 				description="Copy string for all languages from one module to another"/>
 
-			<add-to-group
-				group-id="ToolsMenu"
-				anchor="after"
-				relative-to-action="StringSortAction"/>
-
 			<action
 				icon="AllIcons.RunConfigurations.SortbyDuration"
-				id="StringSortAction"
+				id="com.string.wizard.stringwizard.action.StringSortAction"
 				class="com.string.wizard.stringwizard.action.StringSortAction"
 				text="String Sort"
 				description="Sort all resources strings in selected module"/>
 
-			<add-to-group
-				group-id="ToolsMenu"
-				anchor="after"
-				relative-to-action="StringAddAction"/>
-
 			<action
 				icon="AllIcons.Actions.AddFile"
-				id="StringAddAction"
+				id="com.string.wizard.stringwizard.action.StringAddAction"
 				class="com.string.wizard.stringwizard.action.StringAddAction"
 				text="String Add"
 				description="Add new string to target module with default values (ru,en)"/>
 
-			<add-to-group
-				group-id="ToolsMenu"
-				anchor="after"
-				relative-to-action="StringAddFromExcelAction"/>
-
 			<action
 				icon="AllIcons.Actions.AddFile"
-				id="StringAddFromExcelAction"
+				id="com.string.wizard.stringwizard.action.StringAddFromExcelAction"
 				class="com.string.wizard.stringwizard.action.StringAddFromExcelAction"
 				text="Add String from Excel"
 				description="Add string from excel file"/>
+
+			<add-to-group
+				group-id="ToolsMenu"
+				anchor="after"
+				relative-to-action="com.string.wizard.stringwizard.KabanWizard"/>
 		</group>
+
+
 	</actions>
 
 </idea-plugin>

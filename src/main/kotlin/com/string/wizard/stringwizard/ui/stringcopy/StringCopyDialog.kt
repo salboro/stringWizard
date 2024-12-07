@@ -57,6 +57,8 @@ class StringCopyDialog(
 		const val NEW_STRING_DEFAULT_TEXT = "Choose source string first!"
 		const val NEW_STRING_LABEL = "Input new string name: "
 		const val DOMAIN_LABEL = "Select domain: "
+		const val CREATE_FILE_LABEL = "Create file by selected domain "
+		const val CREATE_FILE_BUTTON = "Create file"
 
 		const val CANCEL = "Cancel"
 		const val OK = "OK"
@@ -99,11 +101,16 @@ class StringCopyDialog(
 	private val domainLabel = JBLabel(DOMAIN_LABEL)
 	private val domainList = ComboBox(Domain.values())
 
+	private val attentionText = JBLabel(ATTENTION_DEFAULT_TEXT)
+
+	private val createFilesPanel = JPanel(HorizontalLayout())
+	private val createFilesLabel = JBLabel(CREATE_FILE_LABEL)
+	private val createFilesButton = JButton(CREATE_FILE_BUTTON)
+
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 	private val cancelButton = JButton(CANCEL)
 	private val okButton = JButton(OK).defaultButton()
 	private val copyButton = JButton(COPY).defaultButton()
-	private val attentionText = JBLabel(ATTENTION_DEFAULT_TEXT)
 
 	init {
 		title = TITLE
@@ -198,6 +205,15 @@ class StringCopyDialog(
 			font = JBFont.regular().asBold()
 		}
 
+		createFilesButton.addActionListener { presenter.createStringFiles() }
+
+		createFilesPanel.apply {
+			isVisible = false
+			border = Borders.emptyBottom(MAIN_BORDER)
+			add(createFilesLabel)
+			add(createFilesButton)
+		}
+
 		buttonsPanel.apply {
 			add(cancelButton)
 			add(copyButton)
@@ -216,6 +232,7 @@ class StringCopyDialog(
 			add(JSeparator())
 			add(domainPanel)
 			add(attentionText)
+			add(createFilesPanel)
 		}
 
 		dialogPanel.apply {
@@ -318,5 +335,16 @@ class StringCopyDialog(
 
 	override fun hideStringSelectionFailed() {
 		stringSelectionError.isVisible = false
+	}
+
+	override fun showSuccessCreateFiles() {
+		attentionText.apply {
+			foreground = JBColor.GREEN
+			text = "File created successfully!"
+		}
+	}
+
+	override fun setCreateFilesButtonVisible(visible: Boolean) {
+		createFilesPanel.isVisible = visible
 	}
 }
