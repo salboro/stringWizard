@@ -29,6 +29,7 @@ import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import com.string.wizard.stringwizard.ui.util.adjustColumnWidths
+import com.string.wizard.stringwizard.ui.util.formatModuleName
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import java.awt.BorderLayout
@@ -335,7 +336,7 @@ class StringAddFromExcelDialog(
 	override fun changeNewStringName(text: String) {
 		newStringInput.apply {
 			isEnabled = true
-			this.text = text
+			this.text = formatModuleName(text).replace("-", "_")
 		}
 	}
 

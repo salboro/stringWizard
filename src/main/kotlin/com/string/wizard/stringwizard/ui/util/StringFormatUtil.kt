@@ -19,3 +19,6 @@ fun copySuccessMessageFormat(sourceModuleName: String, targetModuleName: String,
 
 fun formatExcelString(value: String, position: Int, locale: Locale): String =
 	"<html><b><font color=#7EDC95>value:</b></font> $value       <font color=#7EDC95><b>position:</b></font> $position       <font color=#7EDC95><b>locale:</b></font> ${locale.name}</html>"
+
+fun formatModuleName(name: String): String =
+	name.removePrefix("qpay-rarog-android.").removeSuffix(".main")
