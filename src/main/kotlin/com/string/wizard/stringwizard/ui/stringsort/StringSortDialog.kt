@@ -3,13 +3,12 @@ package com.string.wizard.stringwizard.ui.stringsort
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.modules
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
-import com.string.wizard.stringwizard.domain.stringsort.interactor.StringSortInteractor
+import com.string.wizard.stringwizard.domain.usecase.SortStringUseCase
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
@@ -20,7 +19,6 @@ import com.string.wizard.stringwizard.ui.resources.Strings
 import com.string.wizard.stringwizard.ui.takeMainModules
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
-import org.jetbrains.kotlin.idea.util.sourceRoots
 import java.awt.Dimension
 import javax.swing.JButton
 import javax.swing.JComponent
@@ -85,9 +83,9 @@ class StringSortDialog(val project: Project, dialogTitle: String) : DialogWrappe
 
 	override fun doOKAction() {
 		if (targetModule != null) {
-			val interactor = StringSortInteractor()
+			val sortStingUseCase = SortStringUseCase()
 			try {
-				targetModule?.let(interactor::sort)
+				targetModule?.let(sortStingUseCase::sort)
 				super.doOKAction()
 			} catch (e: Exception) {
 				// stay tuned

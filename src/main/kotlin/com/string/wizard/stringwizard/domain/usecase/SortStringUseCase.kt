@@ -1,9 +1,9 @@
-package com.string.wizard.stringwizard.domain.stringsort.interactor
+package com.string.wizard.stringwizard.domain.usecase
 
 import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.repository.StringRepository
 
-class StringSortInteractor {
+class SortStringUseCase {
 
 	private val stringRepository = StringRepository()
 
