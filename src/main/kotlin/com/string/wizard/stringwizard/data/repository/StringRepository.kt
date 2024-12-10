@@ -97,6 +97,7 @@ class StringRepository {
 		}
 	}
 
+	/** Данный метод предназначен для сортировки строк в модуле */
 	fun sort(module: Module) {
 		val directories = getResourcesDirectories(module) { it.name.contains("values") }
 		val stringsFiles = directories.map { directory ->
