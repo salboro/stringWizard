@@ -16,6 +16,7 @@ import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
+import com.string.wizard.stringwizard.ui.resources.Strings
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import org.jetbrains.kotlin.idea.util.sourceRoots
@@ -34,8 +35,8 @@ class StringSortDialog(val project: Project, dialogTitle: String) : DialogWrappe
 	private val dialogPanel = DialogPanel()
 
 	private val sourceModulePanel = JPanel()
-	private val sourceModuleLabel = JBLabel("Target module: ")
-	private val sourceModuleButton = JButton("Choose Module", AllIcons.General.Add)
+	private val sourceModuleLabel = JBLabel(Strings.TARGET_MODULE)
+	private val sourceModuleButton = JButton(Strings.CHOOSE_MODULE, AllIcons.General.Add)
 	private var targetModule: Module? = null
 
 	init {
@@ -52,7 +53,7 @@ class StringSortDialog(val project: Project, dialogTitle: String) : DialogWrappe
 		sourceModuleButton.addActionListener {
 			SearchableListDialog(
 				parent = dialogPanel,
-				label = "Search modules",
+				label = Strings.SEARCH_MODULE,
 				items = modules,
 				searchBy = { it.name },
 				itemSelectionListener = { module ->

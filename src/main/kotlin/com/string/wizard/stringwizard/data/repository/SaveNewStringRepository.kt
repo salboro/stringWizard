@@ -24,11 +24,6 @@ private const val RES_DIRECTORY_PATH = "/src/main/res/"
 
 class NewStringRepositoryImpl : NewStringRepository {
 
-	private companion object {
-
-		const val SEPARATOR = "\n"
-	}
-
 	private val listDpValues = ResourcesPackage.values()
 
 	override fun add(targetModule: Module, name: String, defaultRuValue: String, defaultEnValue: String) {
