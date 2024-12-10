@@ -5,6 +5,7 @@ import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 import com.string.wizard.stringwizard.data.exception.StringFileException
+import com.string.wizard.stringwizard.data.util.DirectoryPath
 import com.string.wizard.stringwizard.data.util.XmlTemplate
 import com.string.wizard.stringwizard.data.util.getLocale
 import com.string.wizard.stringwizard.data.util.getPackage
@@ -14,11 +15,6 @@ import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
 class StringRepository {
-
-	private companion object {
-
-		const val RES_DIRECTORY_PATH = "/src/main/res/"
-	}
 
 	fun get(module: Module, domain: Domain, resourcesPackage: ResourcesPackage): List<ResourceString> {
 		assertModule(module, domain)
@@ -129,7 +125,7 @@ class StringRepository {
 
 	private fun getResourcesDirectories(module: Module, directoryFilterPredicate: (File) -> Boolean): List<File> {
 		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
-		val resDirectoryPath = path + RES_DIRECTORY_PATH
+		val resDirectoryPath = path + DirectoryPath.RES_DIRECTORY
 		val directories = File(resDirectoryPath)
 			.walk()
 			.filter { it.isDirectory && directoryFilterPredicate(it) }
@@ -140,7 +136,7 @@ class StringRepository {
 
 	private fun assertModule(module: Module, domain: Domain) {
 		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
-		val resDirectoryPath = path + RES_DIRECTORY_PATH
+		val resDirectoryPath = path + DirectoryPath.RES_DIRECTORY
 		val stringsFiles = File(resDirectoryPath)
 			.walk()
 			.filter { it.isFile && it.name.contains("strings") && it.name != "strings_untranslatable.xml" }

@@ -4,6 +4,7 @@ import com.intellij.openapi.module.Module
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
+import com.string.wizard.stringwizard.data.util.DirectoryPath
 import com.string.wizard.stringwizard.data.util.XmlTemplate
 import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.getLocale
@@ -20,15 +21,13 @@ interface NewStringRepository {
 	)
 }
 
-private const val RES_DIRECTORY_PATH = "/src/main/res/"
-
 class NewStringRepositoryImpl : NewStringRepository {
 
 	private val listDpValues = ResourcesPackage.values()
 
 	override fun add(targetModule: Module, name: String, defaultRuValue: String, defaultEnValue: String) {
 		val modulePath = getModulePath(targetModule)
-		val resPath = "$modulePath$RES_DIRECTORY_PATH"
+		val resPath = "$modulePath${DirectoryPath.RES_DIRECTORY}"
 		var valuesList = try {
 			getValuesList(resPath)
 		} catch (e: Exception) {
@@ -82,7 +81,7 @@ class NewStringRepositoryImpl : NewStringRepository {
 		File(resPath).walk().filter { it.isDirectory && it.name.startsWith("values") }.toList()
 
 	private fun createStringsFiles(modulePath: String) {
-		val resPath = "$modulePath$RES_DIRECTORY_PATH"
+		val resPath = "$modulePath${DirectoryPath.RES_DIRECTORY}"
 		try {
 			File(resPath).mkdir()
 		} catch (e: Exception) {
