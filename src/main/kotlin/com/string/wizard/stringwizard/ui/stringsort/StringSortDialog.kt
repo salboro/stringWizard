@@ -17,6 +17,7 @@ import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import com.string.wizard.stringwizard.ui.resources.Strings
+import com.string.wizard.stringwizard.ui.takeMainModules
 import org.jdesktop.swingx.HorizontalLayout
 import org.jdesktop.swingx.VerticalLayout
 import org.jetbrains.kotlin.idea.util.sourceRoots
@@ -46,9 +47,7 @@ class StringSortDialog(val project: Project, dialogTitle: String) : DialogWrappe
 
 	override fun createCenterPanel(): JComponent {
 		dialogPanel.layout = VerticalLayout()
-		val modules = project.modules.filter { module ->
-			module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
-		}
+		val modules = project.takeMainModules()
 
 		sourceModuleButton.addActionListener {
 			SearchableListDialog(

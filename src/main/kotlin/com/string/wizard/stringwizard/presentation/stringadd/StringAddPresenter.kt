@@ -6,15 +6,14 @@ import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.repository.NewStringRepositoryImpl
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringadd.StringAddDialogUi
+import com.string.wizard.stringwizard.ui.takeMainModules
 import org.jetbrains.kotlin.idea.util.sourceRoots
 
 class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 
 	private val newStringRepository = NewStringRepositoryImpl()
 
-	private val filteredModules = project.modules.filter { module ->
-		module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
-	}
+	private val filteredModules = project.takeMainModules()
 
 	private var selectedModule: Module? = null
 

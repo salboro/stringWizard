@@ -9,6 +9,7 @@ import com.string.wizard.stringwizard.data.exception.StringFileException
 import com.string.wizard.stringwizard.domain.stringcopy.interactor.StringCopyInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialogUi
+import com.string.wizard.stringwizard.ui.takeMainModules
 import com.string.wizard.stringwizard.ui.util.formatResourceString
 import org.jetbrains.kotlin.idea.util.sourceRoots
 
@@ -16,9 +17,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 
 	private val interactor = StringCopyInteractor()
 
-	private val filteredModules = project.modules.filter { module ->
-		module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
-	}
+	private val filteredModules = project.takeMainModules()
 
 	private var selectedSourceModule: Module? = null
 	private var selectedTargetModule: Module? = null

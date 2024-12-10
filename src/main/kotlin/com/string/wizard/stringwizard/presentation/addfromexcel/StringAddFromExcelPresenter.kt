@@ -14,6 +14,7 @@ import com.string.wizard.stringwizard.domain.addfromexcel.interactor.StringAddFr
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.addfromexcel.AttentionTextState
 import com.string.wizard.stringwizard.ui.addfromexcel.StringAddFromExcelUi
+import com.string.wizard.stringwizard.ui.takeMainModules
 import com.string.wizard.stringwizard.ui.util.formatExcelString
 import org.jetbrains.kotlin.idea.util.sourceRoots
 import java.io.File
@@ -22,9 +23,7 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 	private val interactor = StringAddFromExcelInteractor()
 
-	private val filteredModules = project.modules.filter { module ->
-		module.sourceRoots.any { !it.path.contains("test", ignoreCase = true) }
-	}
+	private val filteredModules = project.takeMainModules()
 
 	private var excelFile: File? = null
 	private var excelStrings: List<ExcelString>? = null
