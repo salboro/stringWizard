@@ -27,7 +27,7 @@ class ResourceRepository {
 		packageNames.forEach { valueDirectoryName ->
 			val file = File("$resPath/$valueDirectoryName/$stringFileName")
 			file.parentFile.toPath().createDirectories()
-			file.writeText(XmlTemplate.resourceFileTemplate(emptyList()))
+			file.writeText(XmlTemplate.resourceFileTemplate(emptyList())) // TODO() подумать над тем чтобы не записывать строки а просто создавать файл
 		}
 	}
 }

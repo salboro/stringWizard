@@ -5,6 +5,23 @@ import com.string.wizard.stringwizard.data.entity.Domain.DP
 import com.string.wizard.stringwizard.data.entity.Domain.EWALLET
 import com.string.wizard.stringwizard.data.entity.Domain.LOAN
 import com.string.wizard.stringwizard.data.entity.Locale
+import com.string.wizard.stringwizard.data.entity.Locale.AZ
+import com.string.wizard.stringwizard.data.entity.Locale.DE
+import com.string.wizard.stringwizard.data.entity.Locale.EL
+import com.string.wizard.stringwizard.data.entity.Locale.EN
+import com.string.wizard.stringwizard.data.entity.Locale.ES
+import com.string.wizard.stringwizard.data.entity.Locale.FR
+import com.string.wizard.stringwizard.data.entity.Locale.IT
+import com.string.wizard.stringwizard.data.entity.Locale.KA
+import com.string.wizard.stringwizard.data.entity.Locale.KK
+import com.string.wizard.stringwizard.data.entity.Locale.KY
+import com.string.wizard.stringwizard.data.entity.Locale.RO
+import com.string.wizard.stringwizard.data.entity.Locale.RU
+import com.string.wizard.stringwizard.data.entity.Locale.TG
+import com.string.wizard.stringwizard.data.entity.Locale.TR
+import com.string.wizard.stringwizard.data.entity.Locale.UK
+import com.string.wizard.stringwizard.data.entity.Locale.UZ
+import com.string.wizard.stringwizard.data.entity.Locale.ZH
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
 
 private const val STRINGS_FILE_NAME = "strings.xml"
@@ -13,21 +30,9 @@ private const val EWALLET_STRINGS_FILE_NAME = "strings_ewallet.xml"
 
 fun Domain.getLocales(): List<Locale> =
 	when (this) {
-		DP      -> Locale.values().toList()
-		LOAN    -> listOf(Locale.AZ, Locale.KA, Locale.KK, Locale.KY, Locale.RO, Locale.RU, Locale.TG, Locale.UZ)
-		EWALLET -> listOf(Locale.RU, Locale.KY, Locale.TG, Locale.UZ)
-	}
-
-fun Domain.getSortedLocales(): List<Locale> =
-	when (this) {
-		DP      -> {
-			val mutableList = mutableListOf(Locale.EN, Locale.RU)
-			mutableList.addAll(this.getLocales().filterNot { it == Locale.EN || it == Locale.RU })
-			mutableList
-		}
-
-		LOAN    -> listOf(Locale.RU, Locale.AZ, Locale.KA, Locale.KK, Locale.KY, Locale.RO, Locale.TG, Locale.UZ)
-		EWALLET -> listOf(Locale.RU, Locale.KY, Locale.TG, Locale.UZ)
+		DP      -> listOf(EN, RU, AZ, KA, KK, KY, RO, TG, UK, UZ, ZH, DE, EL, ES, FR, IT, TR)
+		LOAN    -> listOf(RU, AZ, KA, KK, KY, RO, TG, UZ)
+		EWALLET -> listOf(RU, KY, TG, UZ)
 	}
 
 fun Domain.getStringFileName(): String =

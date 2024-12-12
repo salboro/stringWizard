@@ -6,7 +6,6 @@ import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.exception.StringFileException
 import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.getLocales
-import com.string.wizard.stringwizard.data.util.getSortedLocales
 import com.string.wizard.stringwizard.domain.entity.NewString
 import com.string.wizard.stringwizard.domain.stringadd.interactor.AddStringInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
@@ -24,14 +23,10 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 
 	private var domain: Domain = Domain.DP
 
-	private var newStrings: List<NewString> = domain.createEmptyStrings()
+	private var newStrings: List<NewString> = Domain.DP.getLocales()
+		.mapIndexed { index, locale -> NewString("", index, locale) }
 
 	private var filteredStrings: List<NewString> = newStrings
-
-	private fun Domain.createEmptyStrings(): List<NewString> =
-		getSortedLocales().mapIndexed { index, locale ->
-			NewString("", index, locale)
-		}
 
 	fun onTargetModuleSelectorClick() {
 		val targetModuleList = selectedModule?.let { filteredModules - it } ?: filteredModules
