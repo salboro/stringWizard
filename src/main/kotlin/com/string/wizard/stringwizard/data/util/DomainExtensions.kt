@@ -13,8 +13,20 @@ private const val EWALLET_STRINGS_FILE_NAME = "strings_ewallet.xml"
 
 fun Domain.getLocales(): List<Locale> =
 	when (this) {
-		DP   -> Locale.values().toList()
-		LOAN -> listOf(Locale.AZ, Locale.KA, Locale.KK, Locale.KY, Locale.RO, Locale.RU, Locale.TG, Locale.UZ)
+		DP      -> Locale.values().toList()
+		LOAN    -> listOf(Locale.AZ, Locale.KA, Locale.KK, Locale.KY, Locale.RO, Locale.RU, Locale.TG, Locale.UZ)
+		EWALLET -> listOf(Locale.RU, Locale.KY, Locale.TG, Locale.UZ)
+	}
+
+fun Domain.getSortedLocales(): List<Locale> =
+	when (this) {
+		DP      -> {
+			val mutableList = mutableListOf(Locale.EN, Locale.RU)
+			mutableList.addAll(this.getLocales().filterNot { it == Locale.EN || it == Locale.RU })
+			mutableList
+		}
+
+		LOAN    -> listOf(Locale.RU, Locale.AZ, Locale.KA, Locale.KK, Locale.KY, Locale.RO, Locale.TG, Locale.UZ)
 		EWALLET -> listOf(Locale.RU, Locale.KY, Locale.TG, Locale.UZ)
 	}
 

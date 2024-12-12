@@ -271,7 +271,6 @@ class StringAddFromExcelDialog(
 				AttentionTextState.SUCCESS -> JBColor.GREEN
 			}
 		}
-
 	}
 
 	override fun enableExcelString(enabled: Boolean) {

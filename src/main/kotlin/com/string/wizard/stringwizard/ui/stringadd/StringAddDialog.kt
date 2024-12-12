@@ -1,46 +1,93 @@
 package com.string.wizard.stringwizard.ui.stringadd
 
+import com.intellij.collaboration.ui.CollaborationToolsUIUtil.defaultButton
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
+import com.intellij.ui.table.JBTable
 import com.intellij.ui.util.preferredWidth
+import com.intellij.util.ui.JBUI.Borders
+import com.string.wizard.stringwizard.data.entity.Domain
+import com.string.wizard.stringwizard.domain.entity.NewString
 import com.string.wizard.stringwizard.presentation.stringadd.StringAddPresenter
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
+import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
+import com.string.wizard.stringwizard.ui.util.adjustColumnWidths
+import com.string.wizard.stringwizard.ui.util.formatModuleName
+import org.jdesktop.swingx.HorizontalLayout
+import org.jdesktop.swingx.VerticalLayout
 import java.awt.BorderLayout
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
+import java.awt.Dimension
+import java.awt.FlowLayout
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.table.DefaultTableModel
 
-class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(project), StringAddDialogUi {
+class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
+	project,
+	null,
+	false,
+	IdeModalityType.IDE,
+	false
+), StringAddDialogUi {
 
 	private val presenter = StringAddPresenter(this, project)
 	private val dialogPanel = DialogPanel(BorderLayout())
+	private val mainPanel = JPanel(VerticalLayout())
+	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 
-	private val targetModulePanel = JPanel()
+	private val cancelButton = JButton("Cancel")
+	private val okButton = JButton("Ok").defaultButton()
+	private val addButton = JButton("Add").defaultButton()
+
+	private val targetModuleRow = JPanel(HorizontalLayout())
 	private val targetModuleLabel = JBLabel("Target module: ")
 	private val targetModuleButton = JButton("Choose Module", AllIcons.General.Add)
 
-	private val newStringNameLabel = JBLabel("Input string name")
-	private val newStringNameInput = JBTextField()
+	private val createFilesRow = JPanel(HorizontalLayout())
+	private val createFilesLabel = JBLabel("Create file:")
+	private val createFilesButton = JButton("Create")
+	private val createFileBottomText = JBLabel()
 
-	private val newStringValueRuLabel = JBLabel("Input Ru default value")
-	private val newStringValueRuInput = JBTextField()
+	private val newStringNameRow = JPanel(HorizontalLayout())
+	private val newStringNameLabel = JBLabel("Enter string name:")
+	private val newStringInput = JBTextField()
 
-	private val newStringValueEnLabel = JBLabel("Input En default value")
-	private val newStringValueEnInput = JBTextField()
+	private val domainRow = JPanel(HorizontalLayout())
+	private val domainLabel = JBLabel("Select domain: ")
+	private val domainList = ComboBox(Domain.values())
 
-	private val error = JBLabel("empty")
+	private val tableLabel = JBLabel("Add string values")
+	private val stringsTableColumns = arrayOf("Locale", "Value")
+	private val tableDataModel = getTableModel()
+	private val newStringsTable = JBTable(tableDataModel)
+	private val tablePanel = JBScrollPane(newStringsTable)
 
-	private var targetModule: Module? = null
+	private val error = JBLabel()
+
+	private fun getTableModel(): DefaultTableModel =
+		object : DefaultTableModel() {
+			override fun isCellEditable(row: Int, column: Int): Boolean =
+				column == 1
+
+			override fun setValueAt(aValue: Any?, row: Int, column: Int) {
+				val newValue = (aValue as? String) ?: return
+				presenter.changeStringValue(newValue, row)
+
+				super.setValueAt(aValue, row, column)
+			}
+		}
 
 	init {
 		title = dialogTitle
@@ -48,72 +95,90 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(pro
 	}
 
 	override fun createCenterPanel(): JComponent {
-		targetModuleButton.addActionListener {
-			presenter.onTargetModuleSelectorClick()
+		addListeners()
+
+		buttonsPanel.apply {
+			add(cancelButton)
+			add(addButton)
+			add(okButton)
 		}
 
-		val gridBagLayout = GridBagLayout()
-		val gridBagConstraints = GridBagConstraints()
-
-		targetModulePanel.apply {
-			layout = gridBagLayout
+		targetModuleRow.apply {
+			add(targetModuleLabel)
+			add(targetModuleButton)
 		}
 
-		gridBagConstraints.gridx = 0
-		gridBagConstraints.gridy = 0
-		gridBagConstraints.fill = GridBagConstraints.HORIZONTAL
-		targetModulePanel.add(targetModuleLabel, gridBagConstraints)
+		domainList.apply {
+			selectedItem = Domain.DP
+			isEditable = false
+			addActionListener { (selectedItem as? Domain)?.let(presenter::selectDomain) }
+		}
 
-		gridBagConstraints.gridx = 1
-		gridBagConstraints.gridy = 0
-		targetModulePanel.add(targetModuleButton, gridBagConstraints)
+		domainRow.apply {
+			add(domainLabel)
+			add(domainList)
+		}
 
-		gridBagConstraints.gridx = 0
-		gridBagConstraints.gridy = 1
-		targetModulePanel.add(newStringNameLabel, gridBagConstraints)
+		newStringNameRow.apply {
+			add(newStringNameLabel)
+			add(newStringInput)
+		}
 
-		gridBagConstraints.gridx = 1
-		gridBagConstraints.gridy = 1
-		targetModulePanel.add(newStringNameInput, gridBagConstraints)
+		createFilesRow.apply {
+			isVisible = false
+			add(createFilesLabel)
+			add(createFilesButton)
+		}
 
-		gridBagConstraints.gridx = 0
-		gridBagConstraints.gridy = 2
-		targetModulePanel.add(newStringValueRuLabel, gridBagConstraints)
+		tableLabel.apply {
+			isVisible = false
+			border = Borders.emptyTop(MAIN_BORDER)
+		}
 
-		gridBagConstraints.gridx = 1
-		gridBagConstraints.gridy = 2
-		targetModulePanel.add(newStringValueRuInput, gridBagConstraints)
+		tableDataModel.setColumnIdentifiers(stringsTableColumns)
 
-		gridBagConstraints.gridx = 0
-		gridBagConstraints.gridy = 3
-		targetModulePanel.add(newStringValueEnLabel, gridBagConstraints)
+		newStringsTable.apply {
+			isStriped = true
+			gridColor = JBColor.GRAY
+			intercellSpacing = Dimension(1, 1)
+			autoResizeMode = JBTable.AUTO_RESIZE_OFF
+		}
 
-		gridBagConstraints.gridx = 1
-		gridBagConstraints.gridy = 3
-		targetModulePanel.add(newStringValueEnInput, gridBagConstraints)
+		tablePanel.apply {
+			border = Borders.emptyBottom(MAIN_BORDER)
+			horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+			isVisible = false
+			preferredSize = Dimension(1000, 300)
+		}
 
-		gridBagConstraints.gridx = 0
-		gridBagConstraints.gridy = 4
-		targetModulePanel.add(error, gridBagConstraints)
+		createFileBottomText.apply {
+			isVisible = false
+		}
+
+		mainPanel.apply {
+			add(targetModuleRow)
+			add(createFilesRow)
+			add(createFileBottomText)
+			add(domainRow)
+			add(newStringNameRow)
+			add(tableLabel)
+			add(tablePanel)
+		}
 
 		dialogPanel.apply {
 			preferredWidth = 400
-			add(targetModulePanel, BorderLayout.WEST)
+			add(mainPanel, BorderLayout.CENTER)
+			add(buttonsPanel, BorderLayout.SOUTH)
 		}
 
 		return dialogPanel
 	}
 
-	override fun doOKAction() {
-		try {
-			presenter.onOkButtonClick(
-				stringName = newStringNameInput.text,
-				defaultRuValue = newStringValueRuInput.text,
-				defaultEnValue = newStringValueEnInput.text,
-			)
-		} catch (e: Exception) {
-			error.text = e.message
-		}
+	private fun addListeners() {
+		targetModuleButton.addActionListener { presenter.onTargetModuleSelectorClick() }
+		addButton.addActionListener { presenter.onAddButtonClick(newStringInput.text) }
+		cancelButton.addActionListener { super.doCancelAction() }
+		okButton.addActionListener { super.doOKAction() }
 	}
 
 	override fun showTargetModuleSelector(modules: List<Module>) {
@@ -129,5 +194,50 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(pro
 
 	override fun changeTargetModuleButton(text: String, state: ButtonState) {
 		targetModuleButton.changeModuleButton(text, state)
+	}
+
+	override fun showNewStrings(strings: List<NewString>) {
+		tableDataModel.rowCount = 0
+
+		strings.forEach {
+			tableDataModel.addRow(arrayOf(it.locale.name, it.value))
+		}
+
+		newStringsTable.adjustColumnWidths()
+
+		tableLabel.isVisible = true
+		tablePanel.isVisible = true
+	}
+
+	override fun setCreateFilesVisible(visible: Boolean) {
+		createFilesRow.isVisible = visible
+	}
+
+	override fun setCreateFileBottomText(text: String, state: BottomTextState) {
+		createFileBottomText.apply {
+			isVisible = true
+			this.text = text
+			foreground = when (state) {
+				BottomTextState.ERROR   -> JBColor.RED
+				BottomTextState.SUCCESS -> JBColor.GREEN
+			}
+		}
+	}
+
+	override fun setErrorText(text: String, state: BottomTextState) {
+		error.apply {
+			this.text = text
+			foreground = when (state) {
+				BottomTextState.ERROR   -> JBColor.RED
+				BottomTextState.SUCCESS -> JBColor.GREEN
+			}
+		}
+	}
+
+	override fun setNewStringName(moduleName: String) {
+		newStringInput.apply {
+			isEnabled = true
+			this.text = formatModuleName(moduleName).replace("-", "_")
+		}
 	}
 }
