@@ -26,7 +26,7 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 
 	private var newStrings: List<NewString> = domain.createEmptyStrings()
 
-	private var filteredStrings: List<NewString>? = null
+	private var filteredStrings: List<NewString> = newStrings
 
 	private fun Domain.createEmptyStrings(): List<NewString> =
 		getSortedLocales().mapIndexed { index, locale ->
@@ -43,7 +43,7 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 
 		ui.changeTargetModuleButton(module.name, ButtonState.FILLED)
 		ui.setNewStringName(module.name)
-		ui.showNewStrings(newStrings)
+		ui.showNewStrings(filteredStrings)
 	}
 
 	fun onAddButtonClick(newStringName: String) {
@@ -55,13 +55,13 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 			}
 			addStringInteractor.writeStrings(selectedModule, domain, filteredList, newStringName)
 
-			ui.setCreateFileBottomText("Success!", BottomTextState.SUCCESS)
+			ui.setAttentionText("Success!", BottomTextState.SUCCESS)
 			ui.setCreateFilesVisible(false)
 		} catch (e: StringFileException) {
 			ui.setCreateFileBottomText(e.message ?: "Unknown exception", BottomTextState.ERROR)
 			ui.setCreateFilesVisible(true)
 		} catch (e: Exception) {
-			ui.setErrorText(e.message ?: "Unknown exception", BottomTextState.ERROR)
+			ui.setAttentionText(e.message ?: "Unknown exception", BottomTextState.ERROR)
 		}
 	}
 
@@ -88,9 +88,20 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 		}
 
 		this.newStrings = newStrings
-		val filteredStrings = newStrings.filter { it.locale in domain.getLocales() }
-		this.filteredStrings = filteredStrings
+		this.filteredStrings = newStrings.filter { it.locale in domain.getLocales() }
 
 		ui.showNewStrings(filteredStrings)
+	}
+
+	fun createFiles() {
+		val selectedTargetModule = selectedModule ?: error("Module not selected!")
+
+		try {
+			addStringInteractor.createFiles(selectedTargetModule, domain)
+			ui.setCreateFilesVisible(false)
+			ui.setCreateFileBottomText("Files successfully created!", BottomTextState.SUCCESS) // TODO поменять нейминг
+		} catch (e: Exception) {
+			ui.setCreateFileBottomText(e.message ?: "Unknown error", BottomTextState.ERROR)
+		}
 	}
 }

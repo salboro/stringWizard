@@ -9,8 +9,13 @@ import com.string.wizard.stringwizard.domain.entity.NewString
 
 class AddStringInteractor {
 
+	private val resourceRepository = ResourceRepository()
 	private val stringRepository = StringRepository()
 	private val converter = StringConverter()
+
+	fun createFiles(module: Module, domain: Domain) {
+		resourceRepository.createStringFiles(module, domain)
+	}
 
 	fun writeStrings(targetModule: Module, domain: Domain, strings: List<NewString>, newStringName: String) {
 		val resStrings = strings.map { converter.convertFromNew(it, newStringName) }

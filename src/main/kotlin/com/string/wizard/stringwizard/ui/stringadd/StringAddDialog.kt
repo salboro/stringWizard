@@ -74,7 +74,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	private val newStringsTable = JBTable(tableDataModel)
 	private val tablePanel = JBScrollPane(newStringsTable)
 
-	private val error = JBLabel()
+	private val attentionText = JBLabel()
 
 	private fun getTableModel(): DefaultTableModel =
 		object : DefaultTableModel() {
@@ -163,6 +163,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 			add(newStringNameRow)
 			add(tableLabel)
 			add(tablePanel)
+			add(attentionText)
 		}
 
 		dialogPanel.apply {
@@ -179,6 +180,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 		addButton.addActionListener { presenter.onAddButtonClick(newStringInput.text) }
 		cancelButton.addActionListener { super.doCancelAction() }
 		okButton.addActionListener { super.doOKAction() }
+		createFilesButton.addActionListener { presenter.createFiles() }
 	}
 
 	override fun showTargetModuleSelector(modules: List<Module>) {
@@ -224,8 +226,9 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 		}
 	}
 
-	override fun setErrorText(text: String, state: BottomTextState) {
-		error.apply {
+	override fun setAttentionText(text: String, state: BottomTextState) {
+		attentionText.apply {
+			isVisible = true
 			this.text = text
 			foreground = when (state) {
 				BottomTextState.ERROR   -> JBColor.RED

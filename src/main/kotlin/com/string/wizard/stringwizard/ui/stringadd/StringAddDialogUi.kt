@@ -16,7 +16,7 @@ interface StringAddDialogUi {
 
 	fun setCreateFileBottomText(text: String, state: BottomTextState)
 
-	fun setErrorText(text: String, state: BottomTextState)
+	fun setAttentionText(text: String, state: BottomTextState)
 
 	fun setNewStringName(moduleName: String)
 }
