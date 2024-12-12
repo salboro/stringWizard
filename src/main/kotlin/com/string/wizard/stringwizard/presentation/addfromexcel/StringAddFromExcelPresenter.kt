@@ -2,7 +2,6 @@ package com.string.wizard.stringwizard.presentation.addfromexcel
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.modules
 import com.intellij.openapi.vfs.VirtualFile
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
@@ -16,7 +15,6 @@ import com.string.wizard.stringwizard.ui.addfromexcel.AttentionTextState
 import com.string.wizard.stringwizard.ui.addfromexcel.StringAddFromExcelUi
 import com.string.wizard.stringwizard.ui.takeMainModules
 import com.string.wizard.stringwizard.ui.util.formatExcelString
-import org.jetbrains.kotlin.idea.util.sourceRoots
 import java.io.File
 
 class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project: Project) {
@@ -112,10 +110,12 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 
 	fun changeExcelStringValue(newValue: String, stringIndex: Int) {
 		val excelStrings = excelStrings ?: return
-		val changedString = excelStrings[stringIndex]
+		var filteredStrings = filteredExcelStrings ?: return
+		val changedString = filteredStrings[stringIndex]
+		val changedStringIndex = excelStrings.indexOf(changedString)
 
 		val newStrings = excelStrings.mapIndexed { index, string ->
-			if (index == stringIndex || (string.locale.getDefaultLocale() == changedString.locale && string.value == changedString.value)) {
+			if (index == changedStringIndex || (string.locale.getDefaultLocale() == changedString.locale && string.value == changedString.value)) {
 				string.copy(value = newValue)
 			} else {
 				string
@@ -123,7 +123,9 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 		}
 
 		this.excelStrings = newStrings
-		ui.showExcelStrings(newStrings)
+		filteredStrings = newStrings.filter { it.locale in domain.getLocales() }
+		this.filteredExcelStrings = filteredStrings
+		ui.showExcelStrings(filteredStrings)
 	}
 
 	fun createStringFiles() {
