@@ -49,7 +49,7 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 	fun onAddButtonClick(newStringName: String) {
 		try {
 			val selectedModule = selectedModule ?: error("Module not selected!")
-			val filteredList = filteredStrings ?: error("UnknownError")
+			val filteredList = filteredStrings
 			if (filteredList.any { it.value.isEmpty() }) {
 				error("Some string is Empty")
 			}
@@ -77,10 +77,11 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 	}
 
 	fun changeStringValue(newValue: String, stringIndex: Int) {
-		val changedString = newStrings[stringIndex]
+		val changedString = filteredStrings[stringIndex]
+		val changedNewStringIndex = newStrings.indexOf(changedString)
 
 		val newStrings = newStrings.mapIndexed { index, string ->
-			if (index == stringIndex || (string.locale.getDefaultLocale() == changedString.locale && string.value == changedString.value)) {
+			if (index == changedNewStringIndex || (string.locale.getDefaultLocale() == changedString.locale && string.value == changedString.value)) {
 				string.copy(value = newValue)
 			} else {
 				string
