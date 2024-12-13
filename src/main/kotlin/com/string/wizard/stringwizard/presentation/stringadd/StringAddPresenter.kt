@@ -53,7 +53,7 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 			ui.setAttentionText("Success!", BottomTextState.SUCCESS)
 			ui.setCreateFilesVisible(false)
 		} catch (e: StringFileException) {
-			ui.setCreateFileBottomText(e.message ?: "Unknown exception", BottomTextState.ERROR)
+			ui.setAttentionText(e.message ?: "Unknown exception", BottomTextState.ERROR)
 			ui.setCreateFilesVisible(true)
 		} catch (e: Exception) {
 			ui.setAttentionText(e.message ?: "Unknown exception", BottomTextState.ERROR)
@@ -95,9 +95,9 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 		try {
 			addStringInteractor.createFiles(selectedTargetModule, domain)
 			ui.setCreateFilesVisible(false)
-			ui.setCreateFileBottomText("Files successfully created!", BottomTextState.SUCCESS) // TODO поменять нейминг
+			ui.setAttentionText("Files successfully created!", BottomTextState.SUCCESS) // TODO поменять нейминг
 		} catch (e: Exception) {
-			ui.setCreateFileBottomText(e.message ?: "Unknown error", BottomTextState.ERROR)
+			ui.setAttentionText(e.message ?: "Unknown error", BottomTextState.ERROR)
 		}
 	}
 }

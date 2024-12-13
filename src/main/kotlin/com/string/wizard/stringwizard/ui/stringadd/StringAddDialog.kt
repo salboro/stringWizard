@@ -58,7 +58,6 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	private val createFilesRow = JPanel(HorizontalLayout())
 	private val createFilesLabel = JBLabel("Create file:")
 	private val createFilesButton = JButton("Create")
-	private val createFileBottomText = JBLabel()
 
 	private val newStringNameRow = JPanel(HorizontalLayout())
 	private val newStringNameLabel = JBLabel("Enter string name:")
@@ -151,18 +150,13 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 			preferredSize = Dimension(1000, 300)
 		}
 
-		createFileBottomText.apply {
-			isVisible = false
-		}
-
 		mainPanel.apply {
 			add(targetModuleRow)
-			add(createFilesRow)
-			add(createFileBottomText)
 			add(domainRow)
 			add(newStringNameRow)
 			add(tableLabel)
 			add(tablePanel)
+			add(createFilesRow)
 			add(attentionText)
 		}
 
@@ -213,17 +207,6 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 
 	override fun setCreateFilesVisible(visible: Boolean) {
 		createFilesRow.isVisible = visible
-	}
-
-	override fun setCreateFileBottomText(text: String, state: BottomTextState) {
-		createFileBottomText.apply {
-			isVisible = true
-			this.text = text
-			foreground = when (state) {
-				BottomTextState.ERROR   -> JBColor.RED
-				BottomTextState.SUCCESS -> JBColor.GREEN
-			}
-		}
 	}
 
 	override fun setAttentionText(text: String, state: BottomTextState) {

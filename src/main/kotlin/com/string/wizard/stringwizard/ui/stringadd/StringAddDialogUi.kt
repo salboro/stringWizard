@@ -14,8 +14,6 @@ interface StringAddDialogUi {
 
 	fun setCreateFilesVisible(visible: Boolean)
 
-	fun setCreateFileBottomText(text: String, state: BottomTextState)
-
 	fun setAttentionText(text: String, state: BottomTextState)
 
 	fun setNewStringName(moduleName: String)
