@@ -95,7 +95,7 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 		try {
 			addStringInteractor.createFiles(selectedTargetModule, domain)
 			ui.setCreateFilesVisible(false)
-			ui.setAttentionText("Files successfully created!", BottomTextState.SUCCESS) // TODO поменять нейминг
+			ui.setAttentionText("Files successfully created! You can add strings", BottomTextState.SUCCESS)
 		} catch (e: Exception) {
 			ui.setAttentionText(e.message ?: "Unknown error", BottomTextState.ERROR)
 		}

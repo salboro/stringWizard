@@ -12,16 +12,18 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.table.JBTable
-import com.intellij.ui.util.preferredWidth
 import com.intellij.util.ui.JBUI.Borders
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.domain.entity.NewString
 import com.string.wizard.stringwizard.presentation.stringadd.StringAddPresenter
 import com.string.wizard.stringwizard.ui.ButtonState
-import com.string.wizard.stringwizard.ui.changeModuleButton
+import com.string.wizard.stringwizard.ui.changeButton
+import com.string.wizard.stringwizard.ui.component.ButtonWithLabel
 import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
+import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
+import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import com.string.wizard.stringwizard.ui.util.adjustColumnWidths
 import com.string.wizard.stringwizard.ui.util.formatModuleName
 import org.jdesktop.swingx.HorizontalLayout
@@ -51,13 +53,8 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	private val okButton = JButton("Ok").defaultButton()
 	private val addButton = JButton("Add").defaultButton()
 
-	private val targetModuleRow = JPanel(HorizontalLayout())
-	private val targetModuleLabel = JBLabel("Target module: ")
-	private val targetModuleButton = JButton("Choose Module", AllIcons.General.Add)
-
-	private val createFilesRow = JPanel(HorizontalLayout())
-	private val createFilesLabel = JBLabel("Create file:")
-	private val createFilesButton = JButton("Create")
+	private val targetModuleView = ButtonWithLabel(labelText = "Target module:", "Choose Module", AllIcons.General.Add)
+	private val createFilesView = ButtonWithLabel(labelText = "Create file:", text = "Create", AllIcons.Actions.AddFile)
 
 	private val newStringNameRow = JPanel(HorizontalLayout())
 	private val newStringNameLabel = JBLabel("Enter string name:")
@@ -102,11 +99,6 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 			add(okButton)
 		}
 
-		targetModuleRow.apply {
-			add(targetModuleLabel)
-			add(targetModuleButton)
-		}
-
 		domainList.apply {
 			selectedItem = Domain.DP
 			isEditable = false
@@ -123,11 +115,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 			add(newStringInput)
 		}
 
-		createFilesRow.apply {
-			isVisible = false
-			add(createFilesLabel)
-			add(createFilesButton)
-		}
+		createFilesView.isVisible = false
 
 		tableLabel.apply {
 			isVisible = false
@@ -151,17 +139,17 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 		}
 
 		mainPanel.apply {
-			add(targetModuleRow)
+			add(targetModuleView)
 			add(domainRow)
 			add(newStringNameRow)
 			add(tableLabel)
 			add(tablePanel)
-			add(createFilesRow)
+			add(createFilesView)
 			add(attentionText)
 		}
 
 		dialogPanel.apply {
-			preferredWidth = 400
+			preferredSize = Dimension(MAIN_DIALOG_WIDTH, MAIN_DIALOG_HEIGHT)
 			add(mainPanel, BorderLayout.CENTER)
 			add(buttonsPanel, BorderLayout.SOUTH)
 		}
@@ -170,11 +158,11 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	}
 
 	private fun addListeners() {
-		targetModuleButton.addActionListener { presenter.onTargetModuleSelectorClick() }
+		targetModuleView.setActionListener(presenter::onTargetModuleSelectorClick)
+		createFilesView.setActionListener(presenter::createFiles)
 		addButton.addActionListener { presenter.onAddButtonClick(newStringInput.text) }
 		cancelButton.addActionListener { super.doCancelAction() }
 		okButton.addActionListener { super.doOKAction() }
-		createFilesButton.addActionListener { presenter.createFiles() }
 	}
 
 	override fun showTargetModuleSelector(modules: List<Module>) {
@@ -189,7 +177,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	}
 
 	override fun changeTargetModuleButton(text: String, state: ButtonState) {
-		targetModuleButton.changeModuleButton(text, state)
+		targetModuleView.changeButton(text, state)
 	}
 
 	override fun showNewStrings(strings: List<NewString>) {
@@ -206,7 +194,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	}
 
 	override fun setCreateFilesVisible(visible: Boolean) {
-		createFilesRow.isVisible = visible
+		createFilesView.isVisible = visible
 	}
 
 	override fun setAttentionText(text: String, state: BottomTextState) {
