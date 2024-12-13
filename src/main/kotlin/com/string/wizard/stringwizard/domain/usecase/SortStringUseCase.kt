@@ -7,7 +7,7 @@ class SortStringUseCase {
 
 	private val stringRepository = StringRepository()
 
-	fun sort(module: Module) {
+	operator fun invoke(module: Module) {
 		stringRepository.sort(module)
 	}
 }
