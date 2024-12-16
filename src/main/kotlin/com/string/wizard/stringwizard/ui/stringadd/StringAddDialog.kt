@@ -11,6 +11,7 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
+import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.domain.entity.NewString
@@ -21,9 +22,12 @@ import com.string.wizard.stringwizard.ui.component.ButtonWithLabel
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.component.TextFieldWithLabel
 import com.string.wizard.stringwizard.ui.renderer.ModuleListRenderer
+import com.string.wizard.stringwizard.ui.renderer.UnicodeTableCellRenderer
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
+import com.string.wizard.stringwizard.ui.resources.Dimension.SMALL_BORED
+import com.string.wizard.stringwizard.ui.resources.Strings.UNICODE_SYMBOLS_ATTENTION_TEXT
 import com.string.wizard.stringwizard.ui.util.adjustColumnWidths
 import com.string.wizard.stringwizard.ui.util.formatModuleName
 import org.jdesktop.swingx.HorizontalLayout
@@ -62,6 +66,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	private val domainList = ComboBox(Domain.values())
 
 	private val tableLabel = JBLabel("Add string values")
+	private val tableAttentionText = JBLabel(UNICODE_SYMBOLS_ATTENTION_TEXT)
 	private val stringsTableColumns = arrayOf("Locale", "Value")
 	private val tableDataModel = getTableModel()
 	private val newStringsTable = JBTable(tableDataModel)
@@ -122,6 +127,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 			gridColor = JBColor.GRAY
 			intercellSpacing = Dimension(1, 1)
 			autoResizeMode = JBTable.AUTO_RESIZE_OFF
+			setDefaultRenderer(Any::class.java, UnicodeTableCellRenderer())
 		}
 
 		tablePanel.apply {
@@ -131,12 +137,20 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 			preferredSize = Dimension(1000, 300)
 		}
 
+		tableAttentionText.apply {
+			isVisible = false
+			border = Borders.empty(SMALL_BORED, 0)
+			font = JBFont.regular().asBold()
+			foreground = JBColor.ORANGE
+		}
+
 		mainPanel.apply {
 			add(targetModuleView)
 			add(domainRow)
 			add(newStringView)
 			add(tableLabel)
 			add(tablePanel)
+			add(tableAttentionText)
 			add(createFilesView)
 			add(attentionText)
 		}
@@ -184,6 +198,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 
 		tableLabel.isVisible = true
 		tablePanel.isVisible = true
+		tableAttentionText.isVisible = true
 	}
 
 	override fun setCreateFilesVisible(visible: Boolean) {

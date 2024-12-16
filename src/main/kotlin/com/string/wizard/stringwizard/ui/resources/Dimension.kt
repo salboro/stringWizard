@@ -7,4 +7,5 @@ object Dimension {
 	const val DEFAULT_COMPONENT_WIDTH = 160
 
 	const val MAIN_BORDER = 10
+	const val SMALL_BORED = 5
 }

@@ -16,6 +16,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.table.JBTable
+import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
@@ -25,9 +26,12 @@ import com.string.wizard.stringwizard.ui.changeModuleButton
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
 import com.string.wizard.stringwizard.ui.renderer.ExcelStringListRenderer
 import com.string.wizard.stringwizard.ui.renderer.ModuleListRenderer
+import com.string.wizard.stringwizard.ui.renderer.UnicodeTableCellRenderer
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
+import com.string.wizard.stringwizard.ui.resources.Dimension.SMALL_BORED
+import com.string.wizard.stringwizard.ui.resources.Strings.UNICODE_SYMBOLS_ATTENTION_TEXT
 import com.string.wizard.stringwizard.ui.util.adjustColumnWidths
 import com.string.wizard.stringwizard.ui.util.formatModuleName
 import org.jdesktop.swingx.HorizontalLayout
@@ -106,6 +110,7 @@ class StringAddFromExcelDialog(
 	private val domainList = ComboBox(Domain.values())
 
 	private val tableLabel = JBLabel(TABLE_LABEL)
+	private val tableAttentionText = JBLabel(UNICODE_SYMBOLS_ATTENTION_TEXT)
 	private val excelStringsTableColumns = arrayOf("Locale", "Copy from default", "Value")
 	private val tableDataModel = getTableModel()
 	private val excelStringsTable = JBTable(tableDataModel)
@@ -201,6 +206,7 @@ class StringAddFromExcelDialog(
 		tableLabel.apply {
 			isVisible = false
 			border = Borders.emptyTop(MAIN_BORDER)
+			border = Borders.emptyBottom(SMALL_BORED)
 		}
 
 		tableDataModel.setColumnIdentifiers(excelStringsTableColumns)
@@ -210,6 +216,7 @@ class StringAddFromExcelDialog(
 			gridColor = JBColor.GRAY
 			intercellSpacing = Dimension(1, 1)
 			autoResizeMode = JBTable.AUTO_RESIZE_OFF
+			setDefaultRenderer(Any::class.java, UnicodeTableCellRenderer())
 		}
 
 		excelTablePanel.apply {
@@ -217,6 +224,13 @@ class StringAddFromExcelDialog(
 			horizontalScrollBarPolicy = JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
 			isVisible = false
 			preferredSize = Dimension(1000, 300)
+		}
+
+		tableAttentionText.apply {
+			isVisible = false
+			border = Borders.empty(SMALL_BORED, 0)
+			font = JBFont.regular().asBold()
+			foreground = JBColor.ORANGE
 		}
 
 		addButton.apply {
@@ -249,6 +263,7 @@ class StringAddFromExcelDialog(
 			add(domainPanel)
 			add(tableLabel)
 			add(excelTablePanel)
+			add(tableAttentionText)
 			add(attentionText)
 			add(createFilesPanel)
 		}
@@ -310,6 +325,7 @@ class StringAddFromExcelDialog(
 
 		excelTablePanel.isVisible = true
 		tableLabel.isVisible = true
+		tableAttentionText.isVisible = true
 	}
 
 	override fun hideExcelStrings() {
