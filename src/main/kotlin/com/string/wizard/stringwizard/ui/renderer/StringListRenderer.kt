@@ -1,4 +1,4 @@
-package com.string.wizard.stringwizard.ui.component
+package com.string.wizard.stringwizard.ui.renderer
 
 import com.intellij.icons.AllIcons
 import com.intellij.ui.components.JBLabel

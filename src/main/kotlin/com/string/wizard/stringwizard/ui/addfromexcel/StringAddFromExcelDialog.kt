@@ -22,9 +22,9 @@ import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.presentation.addfromexcel.StringAddFromExcelPresenter
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
-import com.string.wizard.stringwizard.ui.component.ExcelStringListRenderer
-import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
+import com.string.wizard.stringwizard.ui.renderer.ExcelStringListRenderer
+import com.string.wizard.stringwizard.ui.renderer.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH

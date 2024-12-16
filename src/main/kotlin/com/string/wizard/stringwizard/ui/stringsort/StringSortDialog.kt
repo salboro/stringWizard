@@ -13,8 +13,8 @@ import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.addfromexcel.AttentionTextState
 import com.string.wizard.stringwizard.ui.changeButton
 import com.string.wizard.stringwizard.ui.component.ButtonWithLabel
-import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
+import com.string.wizard.stringwizard.ui.renderer.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
 import com.string.wizard.stringwizard.ui.resources.Strings

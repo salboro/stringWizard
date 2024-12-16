@@ -17,9 +17,9 @@ import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.presentation.stringcopy.StringCopyDialogPresenter
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeModuleButton
-import com.string.wizard.stringwizard.ui.component.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
-import com.string.wizard.stringwizard.ui.component.StringListRenderer
+import com.string.wizard.stringwizard.ui.renderer.ModuleListRenderer
+import com.string.wizard.stringwizard.ui.renderer.StringListRenderer
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_HEIGHT
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_DIALOG_WIDTH
