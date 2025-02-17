@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.string.wizard"
-version = "0.1-test"
+version = "0.2-test"
 
 repositories {
 	mavenCentral()
