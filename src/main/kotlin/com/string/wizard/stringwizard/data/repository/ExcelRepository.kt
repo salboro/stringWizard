@@ -19,7 +19,7 @@ class ExcelRepository {
 		val sheet = getSheet(file)
 
 		val localeRow = sheet.getRow(0)
-		val localeCell = localeRow.find { it.stringCellValue.equals(locale.name, ignoreCase = true) } ?: error("Invalid file content")
+		val localeCell = localeRow.find { it.stringCellValue.contains(locale.name, ignoreCase = true) } ?: error("Invalid file content")
 
 		var rowIterator = 1
 		while (true) {
@@ -48,7 +48,7 @@ class ExcelRepository {
 		val stringRow = sheet.getRow(position)
 
 		for (cell in localeRow.toList()) {
-			val localeValue = cell.stringCellValue
+			val localeValue = getLocaleByRawName(cell.stringCellValue)?.name ?: break
 			val stringValue = stringRow.getCell(cell.address.column)?.stringCellValue.orEmpty()
 			if (localeValue.isNotBlank() && stringValue.isNotBlank()) {
 				result.add(ExcelString(stringValue, position, Locale.valueOf(localeValue)))
@@ -63,6 +63,11 @@ class ExcelRepository {
 			result
 		}
 	}
+
+	private fun getLocaleByRawName(name: String): Locale? =
+		Locale.values().find { locale ->
+			name.contains(locale.name, ignoreCase = true)
+		}
 
 	private fun List<ExcelString>.addMissingValues(): List<ExcelString> {
 		val result = mutableListOf<ExcelString>()
