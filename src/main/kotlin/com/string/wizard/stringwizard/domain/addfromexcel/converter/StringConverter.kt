@@ -6,9 +6,9 @@ import com.string.wizard.stringwizard.domain.entity.NewString
 
 class StringConverter {
 
-	fun convert(from: ExcelString, name: String): ResourceString =
-		ResourceString(name, from.value, from.locale)
+	fun convert(from: ExcelString, name: String): ResourceString.Default =
+		ResourceString.Default(name, from.locale, from.value)
 
-	fun convertFromNew(from: NewString, name: String): ResourceString =
-		ResourceString(name, from.value, from.locale)
+	fun convertFromNew(from: NewString, name: String): ResourceString.Default =
+		ResourceString.Default(name, from.locale, from.value)
 }

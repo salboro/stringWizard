@@ -8,11 +8,11 @@ import java.awt.Component
 import javax.swing.JList
 import javax.swing.ListCellRenderer
 
-class StringListRenderer : JBLabel(), ListCellRenderer<ResourceString> {
+class StringListRenderer : JBLabel(), ListCellRenderer<ResourceString.Default> {
 
 	override fun getListCellRendererComponent(
-		list: JList<out ResourceString>?,
-		value: ResourceString?,
+		list: JList<out ResourceString.Default>?,
+		value: ResourceString.Default?,
 		index: Int,
 		isSelected: Boolean,
 		cellHasFocus: Boolean

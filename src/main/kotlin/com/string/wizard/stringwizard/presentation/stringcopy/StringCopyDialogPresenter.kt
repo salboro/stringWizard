@@ -2,7 +2,6 @@ package com.string.wizard.stringwizard.presentation.stringcopy
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.modules
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.exception.StringFileException
@@ -11,7 +10,6 @@ import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialogUi
 import com.string.wizard.stringwizard.ui.takeMainModules
 import com.string.wizard.stringwizard.ui.util.formatResourceString
-import org.jetbrains.kotlin.idea.util.sourceRoots
 
 class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Project) {
 
@@ -22,7 +20,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	private var selectedSourceModule: Module? = null
 	private var selectedTargetModule: Module? = null
 
-	private var selectedString: ResourceString? = null
+	private var selectedString: ResourceString.Default? = null
 	private var domain = Domain.DP
 
 	fun onModulesChooserClick() {
@@ -57,7 +55,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	fun onStringSelectionClick() {
 		try {
 			val module = selectedSourceModule ?: error("Choose source module first!")
-			val strings = interactor.getBaseStrings(module, domain)
+			val strings = interactor.getBaseStrings(module, domain).filterIsInstance<ResourceString.Default>()
 
 			ui.showSourceStringSelector(strings)
 			ui.hideStringSelectionFailed()
@@ -66,7 +64,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 		}
 	}
 
-	fun selectString(string: ResourceString) {
+	fun selectString(string: ResourceString.Default) {
 		selectedString = string
 
 		ui.changeSourceStringButton(formatResourceString(string.name, string.value, string.locale), ButtonState.FILLED)
