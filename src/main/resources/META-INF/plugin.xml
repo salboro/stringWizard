@@ -1,50 +1,73 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>com.string.wizard.stringWizard</id>
+	<!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+	<id>com.string.wizard.stringWizard</id>
 
-    <!-- Public plugin name should be written in Title Case.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>StringWizard</name>
+	<!-- Public plugin name should be written in Title Case.
+		 Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+	<name>StringWizard</name>
 
-    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="kaban@kabancompany.com" url="https://www.kabancompany.com">KabanCompany</vendor>
+	<!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+	<vendor email="kaban@kabancompany.com" url="https://www.kabancompany.com">KabanCompany</vendor>
 
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
-    <description>Kaban string wizard</description>
+	<!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+		 Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+		 Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+	<description>Kaban string wizard</description>
 
-    <!-- Product and plugin compatibility requirements.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-    <depends>com.intellij.modules.platform</depends>
+	<!-- Product and plugin compatibility requirements.
+		 Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+	<depends>com.intellij.modules.platform</depends>
+	<depends>org.jetbrains.android</depends>
 
-    <!-- Extension points defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-    <extensions defaultExtensionNs="com.intellij">
+	<!-- Extension points defined by the plugin.
+		 Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+	<extensions defaultExtensionNs="com.intellij">
 
-    </extensions>
+	</extensions>
 
-    <actions>
-        <group
-            id="org.intellij.sdk.action.GroupedActions"
-            text="Kaban Wizard"
-            popup="true"
-            icon="com.string.wizard.stringwizard.ui.Icons.KabanSmall">
+	<actions>
+		<group
+			id="com.string.wizard.stringwizard.KabanWizard"
+			text="Kaban Wizard"
+			popup="true"
+			icon="com.string.wizard.stringwizard.ui.resources.Icons.KabanSmall">
 
-            <add-to-group
-                group-id="ToolsMenu"
-                anchor="after"
-                relative-to-action="org.intellij.sdk.action.GroupPopDialogAction"/>
+			<action
+				icon="AllIcons.Actions.Copy"
+				id="com.string.wizard.stringwizard.action.StringCopyAction"
+				class="com.string.wizard.stringwizard.action.StringCopyAction"
+				text="String Copy"
+				description="Copy string for all languages from one module to another"/>
 
-            <action
-                icon="AllIcons.Actions.Copy"
-                id="org.intellij.sdk.action.GroupPopDialogAction"
-                class="com.string.wizard.stringwizard.action.StringCopyAction"
-                text="String Copy"
-                description="Copy string for all languages from one module to another">
-            </action>
-        </group>
-    </actions>
+			<action
+				icon="AllIcons.RunConfigurations.SortbyDuration"
+				id="com.string.wizard.stringwizard.action.StringSortAction"
+				class="com.string.wizard.stringwizard.action.StringSortAction"
+				text="String Sort"
+				description="Sort all resources strings in selected module"/>
+
+			<action
+				icon="AllIcons.Actions.AddFile"
+				id="com.string.wizard.stringwizard.action.StringAddAction"
+				class="com.string.wizard.stringwizard.action.StringAddAction"
+				text="String Add"
+				description="Add new string to target module with default values (ru,en)"/>
+
+			<action
+				icon="AllIcons.Actions.AddFile"
+				id="com.string.wizard.stringwizard.action.StringAddFromExcelAction"
+				class="com.string.wizard.stringwizard.action.StringAddFromExcelAction"
+				text="Add String from Excel"
+				description="Add string from excel file"/>
+
+			<add-to-group
+				group-id="ToolsMenu"
+				anchor="after"
+				relative-to-action="com.string.wizard.stringwizard.KabanWizard"/>
+		</group>
+
+
+	</actions>
 
 </idea-plugin>
