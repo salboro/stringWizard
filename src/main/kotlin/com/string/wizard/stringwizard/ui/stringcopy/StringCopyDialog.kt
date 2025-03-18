@@ -61,7 +61,6 @@ class StringCopyDialog(
 		const val CREATE_FILE_BUTTON = "Create file"
 
 		const val CANCEL = "Cancel"
-		const val OK = "OK"
 		const val COPY = "Copy"
 		const val ATTENTION_DEFAULT_TEXT = "Fill all fields before copy! Also recommend sync (if you haven't done it yet) and commit/stash changes"
 
@@ -109,7 +108,6 @@ class StringCopyDialog(
 
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 	private val cancelButton = JButton(CANCEL)
-	private val okButton = JButton(OK).defaultButton()
 	private val copyButton = JButton(COPY).defaultButton()
 
 	init {
@@ -195,10 +193,6 @@ class StringCopyDialog(
 			addActionListener { super.doCancelAction() }
 		}
 
-		okButton.apply {
-			addActionListener { super.doOKAction() }
-		}
-
 		attentionText.apply {
 			border = Borders.emptyTop(MAIN_BORDER)
 			foreground = JBColor.RED
@@ -217,7 +211,6 @@ class StringCopyDialog(
 		buttonsPanel.apply {
 			add(cancelButton)
 			add(copyButton)
-			add(okButton)
 		}
 
 		mainPanel.apply {
