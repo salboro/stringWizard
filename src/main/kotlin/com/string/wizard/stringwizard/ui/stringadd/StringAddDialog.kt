@@ -54,7 +54,6 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 
 	private val cancelButton = JButton("Cancel")
-	private val okButton = JButton("Ok").defaultButton()
 	private val addButton = JButton("Add").defaultButton()
 
 	private val targetModuleView = ButtonWithLabel(labelText = "Target module:", "Choose Module", AllIcons.General.Add)
@@ -101,7 +100,6 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 		buttonsPanel.apply {
 			add(cancelButton)
 			add(addButton)
-			add(okButton)
 		}
 
 		domainList.apply {
@@ -176,7 +174,6 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 		createFilesView.setActionListener(presenter::createFiles)
 		addButton.addActionListener { presenter.onAddButtonClick(newStringInput.text) }
 		cancelButton.addActionListener { super.doCancelAction() }
-		okButton.addActionListener { super.doOKAction() }
 	}
 
 	override fun showTargetModuleSelector(modules: List<Module>) {
