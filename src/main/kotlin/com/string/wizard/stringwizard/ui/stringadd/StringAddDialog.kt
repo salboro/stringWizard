@@ -10,6 +10,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.components.JBTextField
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI.Borders
@@ -20,7 +21,6 @@ import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.changeButton
 import com.string.wizard.stringwizard.ui.component.ButtonWithLabel
 import com.string.wizard.stringwizard.ui.component.SearchableListDialog
-import com.string.wizard.stringwizard.ui.component.TextFieldWithLabel
 import com.string.wizard.stringwizard.ui.renderer.ModuleListRenderer
 import com.string.wizard.stringwizard.ui.renderer.UnicodeTableCellRenderer
 import com.string.wizard.stringwizard.ui.resources.Dimension.MAIN_BORDER
@@ -59,7 +59,10 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 
 	private val targetModuleView = ButtonWithLabel(labelText = "Target module:", "Choose Module", AllIcons.General.Add)
 	private val createFilesView = ButtonWithLabel(labelText = "Create file:", text = "Create", AllIcons.Actions.AddFile)
-	private val newStringView = TextFieldWithLabel("Enter string name:")
+
+	private val newStringNameRow = JPanel(HorizontalLayout())
+	private val newStringNameLabel = JBLabel("Enter string name:")
+	private val newStringInput = JBTextField()
 
 	private val domainRow = JPanel(HorizontalLayout())
 	private val domainLabel = JBLabel("Select domain: ")
@@ -112,8 +115,12 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 			add(domainList)
 		}
 
+		newStringNameRow.apply {
+			add(newStringNameLabel)
+			add(newStringInput)
+		}
+
 		createFilesView.isVisible = false
-		newStringView.isEnabled = false
 
 		tableLabel.apply {
 			isVisible = false
@@ -147,7 +154,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 		mainPanel.apply {
 			add(targetModuleView)
 			add(domainRow)
-			add(newStringView)
+			add(newStringNameRow)
 			add(tableLabel)
 			add(tablePanel)
 			add(tableAttentionText)
@@ -167,7 +174,7 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	private fun addListeners() {
 		targetModuleView.setActionListener(presenter::onTargetModuleSelectorClick)
 		createFilesView.setActionListener(presenter::createFiles)
-		addButton.addActionListener { presenter.onAddButtonClick(newStringView.text) }
+		addButton.addActionListener { presenter.onAddButtonClick(newStringInput.text) }
 		cancelButton.addActionListener { super.doCancelAction() }
 		okButton.addActionListener { super.doOKAction() }
 	}
@@ -217,9 +224,9 @@ class StringAddDialog(project: Project, dialogTitle: String) : DialogWrapper(
 	}
 
 	override fun setNewStringName(moduleName: String) {
-		newStringView.apply {
+		newStringInput.apply {
 			isEnabled = true
-			text = formatModuleName(moduleName).replace("-", "_")
+			this.text = formatModuleName(moduleName).replace("-", "_")
 		}
 	}
 }
