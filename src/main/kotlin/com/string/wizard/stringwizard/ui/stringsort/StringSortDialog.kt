@@ -40,7 +40,6 @@ class StringSortDialog(private val project: Project, dialogTitle: String) : Dial
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 
 	private val cancelButton = JButton("Cancel")
-	private val okButton = JButton("Ok").defaultButton()
 	private val sortButton = JButton("Sort").defaultButton()
 	private val attentionText = JBLabel()
 
@@ -56,7 +55,6 @@ class StringSortDialog(private val project: Project, dialogTitle: String) : Dial
 		buttonsPanel.apply {
 			add(cancelButton)
 			add(sortButton)
-			add(okButton)
 		}
 
 		attentionText.isVisible = false
@@ -78,7 +76,6 @@ class StringSortDialog(private val project: Project, dialogTitle: String) : Dial
 	private fun setActionListeners() {
 		targetModuleView.setActionListener(presenter::onTargetModuleSelectorClick)
 		cancelButton.addActionListener { super.doCancelAction() }
-		okButton.addActionListener { super.doOKAction() }
 		sortButton.addActionListener { presenter.sortString() }
 	}
 
