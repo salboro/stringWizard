@@ -13,11 +13,7 @@ import com.string.wizard.stringwizard.data.util.getPackage
 import com.string.wizard.stringwizard.data.util.getResourcesPackageList
 import com.string.wizard.stringwizard.data.util.getStringFileName
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
-import org.w3c.dom.NodeList
 import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
 
 class StringRepository {
 
@@ -78,7 +74,7 @@ class StringRepository {
 		directories.forEach { directory ->
 			val stringFileName = domain.getStringFileName()
 			val stringsFile = getFileFromDirectory(directory, stringFileName) { it.name == stringFileName }
-			val string = strings.find { it.locale?.getPackage(domain)?.packageName == directory.name } ?: error("ABOBA")
+			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
 	}
@@ -86,21 +82,31 @@ class StringRepository {
 	/** Данный метод предназначен для сортировки строк в модуле */
 	fun sort(module: Module) {
 		val directories = getResourcesDirectories(module) { it.name.contains("values") }
-		val stringsFiles = directories.map { directory ->
-			getFileFromDirectory(directory, "string") { it.name.contains("string") }
-		}
+		val domains = Domain.values()
 
-		stringsFiles.forEach { file ->
-			val listDefaults = stringDataSource.getDefaults(file, locale = null).sortedBy { it.name }
-			val listPlurals = stringDataSource.getPlurals(file, locale = null).sortedBy { it.name }
+		val domainsStrings = domains.associateWith { getStringFilesForDomain(directories, it) }
 
-			file.writeText(XmlTemplate.resourceFileTemplateDefault(listDefaults, listPlurals))
+		domainsStrings.forEach { (domain, stringFiles) ->
+			stringFiles.forEach { file ->
+				val locale = ResourcesPackage.findByPackageName(file.parentFile.name)?.getLocale(domain) ?: error("Unexpected directory path ${file.path}")
+				val listDefaults = stringDataSource.getDefaults(file, locale).sortedBy { it.name }
+				val listPlurals = stringDataSource.getPlurals(file, locale).sortedBy { it.name }
+
+				file.writeText(XmlTemplate.resourceFileTemplateDefault(listDefaults, listPlurals))
+			}
 		}
 	}
 
+	private fun getStringFilesForDomain(directories: List<File>, domain: Domain): List<File> =
+		directories.mapNotNull { directory ->
+			runCatching {
+				getFileFromDirectory(directory, "string") { it.name == domain.getStringFileName() }
+			}.getOrNull()
+		}
+
 	private fun writeStringInFile(file: File, string: ResourceString) {
-		val defaultsList = stringDataSource.getDefaults(file, locale = null).toMutableList()
-		val pluralsList = stringDataSource.getPlurals(file, locale = null).toMutableList()
+		val defaultsList = stringDataSource.getDefaults(file, string.locale).toMutableList()
+		val pluralsList = stringDataSource.getPlurals(file, string.locale).toMutableList()
 
 		if (defaultsList.any { it.name == string.name } || pluralsList.any { it.name == string.name }) {
 			throw IllegalArgumentException("${string.name} already exist in ${file.path}")
