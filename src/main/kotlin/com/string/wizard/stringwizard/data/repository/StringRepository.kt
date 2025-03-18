@@ -1,6 +1,7 @@
 package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
+import com.string.wizard.stringwizard.data.datasource.ResourceStringDataSource
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
@@ -12,9 +13,15 @@ import com.string.wizard.stringwizard.data.util.getPackage
 import com.string.wizard.stringwizard.data.util.getResourcesPackageList
 import com.string.wizard.stringwizard.data.util.getStringFileName
 import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
+import org.w3c.dom.NodeList
 import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.XPathConstants
+import javax.xml.xpath.XPathFactory
 
 class StringRepository {
+
+	private val stringDataSource = ResourceStringDataSource()
 
 	fun get(module: Module, domain: Domain, resourcesPackage: ResourcesPackage): List<ResourceString> {
 		assertModule(module, domain)
@@ -28,32 +35,15 @@ class StringRepository {
 	}
 
 	private fun getStrings(stringsFile: File, directoryName: String, domain: Domain): List<ResourceString> {
-		val resText = stringsFile.readText()
 		val locale = ResourcesPackage.findByPackageName(directoryName)?.getLocale(domain)
 			?: throw IllegalArgumentException("Unexpected directory locale: ${stringsFile.absolutePath}")
 
-		val rawStrings = resText
-			.substringAfter("<resources>")
-			.substringBefore("</resources>")
-			.split("\n")
-			.filter { it.isNotBlank() }
+		val defaults = stringDataSource.getDefaults(stringsFile, locale).sortedBy { it.name }
 
-		return rawStrings.map {
-			ResourceString(name = getResourcesStringName(it), value = getResourcesStringValue(it), locale = locale)
-		}
+		return defaults
 	}
 
-	private fun getResourcesStringName(from: String): String =
-		from
-			.substringAfter("<string name=\"")
-			.substringBefore("\"")
-
-	private fun getResourcesStringValue(from: String): String =
-		from
-			.substringAfter("\">")
-			.substringBefore("</string>")
-
-	fun get(module: Module, domain: Domain, stringName: String): List<ResourceString> {
+	fun get(module: Module, domain: Domain, stringName: String): List<ResourceString.Default> {
 		assertModule(module, domain)
 
 		val valuesDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
@@ -63,7 +53,7 @@ class StringRepository {
 			val stringsFile = getFileFromDirectory(directory, stringFileName) { it.name == stringFileName }
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
-			ResourceString(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
+			ResourceString.Default(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
 		}
 	}
 
@@ -80,7 +70,7 @@ class StringRepository {
 		}
 	}
 
-	fun write(module: Module, domain: Domain, strings: List<ResourceString>) {
+	fun write(module: Module, domain: Domain, strings: List<ResourceString.Default>) {
 		assertModule(module, domain)
 
 		val directories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
@@ -88,7 +78,7 @@ class StringRepository {
 		directories.forEach { directory ->
 			val stringFileName = domain.getStringFileName()
 			val stringsFile = getFileFromDirectory(directory, stringFileName) { it.name == stringFileName }
-			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
+			val string = strings.find { it.locale?.getPackage(domain)?.packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
 	}
@@ -101,25 +91,26 @@ class StringRepository {
 		}
 
 		stringsFiles.forEach { file ->
-			val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
-			val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
-			val sortedStrings = strings.sorted()
+			val listDefaults = stringDataSource.getDefaults(file, locale = null).sortedBy { it.name }
+			val listPlurals = stringDataSource.getPlurals(file, locale = null).sortedBy { it.name }
 
-			file.writeText(XmlTemplate.resourceFileTemplate(sortedStrings))
+			file.writeText(XmlTemplate.resourceFileTemplateDefault(listDefaults, listPlurals))
 		}
 	}
 
 	private fun writeStringInFile(file: File, string: ResourceString) {
-		val onlyStringsSubstring = file.readText().substringAfter("<resources>").substringBefore("</resources>")
-		val newString = XmlTemplate.stringTemplate(name = string.name, value = string.value)
-		val strings = onlyStringsSubstring.split("\n").filter { it.isNotBlank() }.map { it.trim() }
+		val defaultsList = stringDataSource.getDefaults(file, locale = null).toMutableList()
+		val pluralsList = stringDataSource.getPlurals(file, locale = null).toMutableList()
 
-		if (strings.any { it.contains(string.name) }) {
+		if (defaultsList.any { it.name == string.name } || pluralsList.any { it.name == string.name }) {
 			throw IllegalArgumentException("${string.name} already exist in ${file.path}")
 		} else {
-			val resultStrings = strings + newString
-			val sortedStrings = resultStrings.sorted()
-			file.writeText(XmlTemplate.resourceFileTemplate(sortedStrings))
+			when (string) {
+				is ResourceString.Default -> defaultsList.add(string)
+				is ResourceString.Plural  -> pluralsList.add(string)
+			}
+
+			file.writeText(XmlTemplate.resourceFileTemplateDefault(defaultsList.sortedBy { it.name }, pluralsList.sortedBy { it.name }))
 		}
 	}
 
@@ -148,7 +139,6 @@ class StringRepository {
 			domainStringsFiles.size < domain.getResourcesPackageList().size -> "Not enough resources packages for domain ${domain.name}"
 			else                                                            -> null
 		}
-
 		errorText?.let { throw StringFileException(it) }
 	}
 

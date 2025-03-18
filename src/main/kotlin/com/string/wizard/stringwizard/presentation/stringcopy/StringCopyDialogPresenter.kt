@@ -3,6 +3,7 @@ package com.string.wizard.stringwizard.presentation.stringcopy
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.string.wizard.stringwizard.data.entity.Domain
+import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.exception.StringFileException
 import com.string.wizard.stringwizard.domain.stringcopy.interactor.StringCopyInteractor
@@ -67,7 +68,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	fun selectString(string: ResourceString.Default) {
 		selectedString = string
 
-		ui.changeSourceStringButton(formatResourceString(string.name, string.value, string.locale), ButtonState.FILLED)
+		ui.changeSourceStringButton(formatResourceString(string.name, string.value, string.locale ?: Locale.RU), ButtonState.FILLED)
 		ui.changeNewStringName(string.name)
 
 		if (selectedTargetModule != null) {

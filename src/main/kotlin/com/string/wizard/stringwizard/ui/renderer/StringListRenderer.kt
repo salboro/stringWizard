@@ -2,6 +2,7 @@ package com.string.wizard.stringwizard.ui.renderer
 
 import com.intellij.icons.AllIcons
 import com.intellij.ui.components.JBLabel
+import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.ui.util.formatResourceString
 import java.awt.Component
@@ -18,7 +19,7 @@ class StringListRenderer : JBLabel(), ListCellRenderer<ResourceString.Default> {
 		cellHasFocus: Boolean
 	): Component {
 		text = if (value != null) {
-			formatResourceString(name = value.name, value = value.value, locale = value.locale)
+			formatResourceString(name = value.name, value = value.value, locale = value.locale ?: Locale.RU)
 		} else {
 			"Invalid"
 		}
