@@ -74,7 +74,6 @@ class StringAddFromExcelDialog(
 		const val STRING_SELECTOR_TITLE = "title"
 
 		const val CANCEL = "Cancel"
-		const val OK = "OK"
 		const val ADD = "Add"
 
 		const val MAX_TEXT_LENGTH = 150
@@ -124,7 +123,6 @@ class StringAddFromExcelDialog(
 
 	private val buttonsPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
 	private val cancelButton = JButton(CANCEL)
-	private val okButton = JButton(OK).defaultButton()
 	private val addButton = JButton(ADD).defaultButton()
 
 	private val browseListener = object : TextBrowseFolderListener(fileDescriptor) {
@@ -241,10 +239,6 @@ class StringAddFromExcelDialog(
 			addActionListener { super.doCancelAction() }
 		}
 
-		okButton.apply {
-			addActionListener { super.doOKAction() }
-		}
-
 		attentionText.apply {
 			border = Borders.emptyBottom(MAIN_BORDER)
 		}
@@ -252,7 +246,6 @@ class StringAddFromExcelDialog(
 		buttonsPanel.apply {
 			add(cancelButton)
 			add(addButton)
-			add(okButton)
 		}
 
 		mainPanel.apply {
