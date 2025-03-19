@@ -92,7 +92,7 @@ class StringRepository {
 				val listDefaults = stringDataSource.getDefaults(file, locale).sortedBy { it.name }
 				val listPlurals = stringDataSource.getPlurals(file, locale).sortedBy { it.name }
 
-				file.writeText(XmlTemplate.resourceFileTemplateDefault(listDefaults, listPlurals))
+				stringDataSource.write(file, listPlurals + listDefaults)
 			}
 		}
 	}
