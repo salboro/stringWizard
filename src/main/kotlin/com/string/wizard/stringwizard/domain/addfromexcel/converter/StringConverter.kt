@@ -4,6 +4,8 @@ import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.domain.entity.NewString
 
+// TODO: Перенести куда-то в общее место, так как используется не только для добавление из excel.
+//  Или же после переноса NewString вынести часть функционала в отдельный конвертер
 class StringConverter {
 
 	fun convert(from: ExcelString, name: String): ResourceString.Default =
