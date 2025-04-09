@@ -3,7 +3,7 @@ package com.string.wizard.stringwizard.presentation.stringadd
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.string.wizard.stringwizard.data.entity.Domain
-import com.string.wizard.stringwizard.data.exception.StringFileException
+import com.string.wizard.stringwizard.data.exception.NotEnoughStringFilesException
 import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.getLocales
 import com.string.wizard.stringwizard.domain.entity.NewString
@@ -52,8 +52,8 @@ class StringAddPresenter(private val ui: StringAddDialogUi, project: Project) {
 
 			ui.setAttentionText("Success!", BottomTextState.SUCCESS)
 			ui.setCreateFilesVisible(false)
-		} catch (e: StringFileException) {
-			ui.setAttentionText(e.message ?: "Unknown exception", BottomTextState.ERROR)
+		} catch (e: NotEnoughStringFilesException) {
+			ui.setAttentionText(e.message, BottomTextState.ERROR)
 			ui.setCreateFilesVisible(true)
 		} catch (e: Exception) {
 			ui.setAttentionText(e.message ?: "Unknown exception", BottomTextState.ERROR)

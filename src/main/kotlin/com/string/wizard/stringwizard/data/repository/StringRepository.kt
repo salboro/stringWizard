@@ -1,31 +1,25 @@
 package com.string.wizard.stringwizard.data.repository
 
 import com.intellij.openapi.module.Module
+import com.string.wizard.stringwizard.data.datasource.FileDataSource
 import com.string.wizard.stringwizard.data.datasource.ResourceStringDataSource
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
-import com.string.wizard.stringwizard.data.exception.StringFileException
-import com.string.wizard.stringwizard.data.util.DirectoryPath
 import com.string.wizard.stringwizard.data.util.XmlTemplate
 import com.string.wizard.stringwizard.data.util.getLocale
 import com.string.wizard.stringwizard.data.util.getPackage
-import com.string.wizard.stringwizard.data.util.getResourcesPackageList
-import com.string.wizard.stringwizard.data.util.getStringFileName
-import org.jetbrains.kotlin.idea.base.projectStructure.externalProjectPath
 import java.io.File
 
 class StringRepository {
 
 	private val stringDataSource = ResourceStringDataSource()
+	private val fileDataSource = FileDataSource()
 
 	fun get(module: Module, domain: Domain, resourcesPackage: ResourcesPackage): List<ResourceString> {
-		assertModule(module, domain)
-
-		val allDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
+		val allDirectories = fileDataSource.getResourceDirectories(module, domain)
 		val defaultDirectory = allDirectories.find { it.name == resourcesPackage.packageName } ?: allDirectories.first()
-		val stringFileName = domain.getStringFileName()
-		val stringsFile = getFileFromDirectory(defaultDirectory, stringFileName) { it.name == stringFileName }
+		val stringsFile = fileDataSource.getStringFile(defaultDirectory, domain)
 
 		return getStrings(stringsFile, defaultDirectory.name, domain)
 	}
@@ -40,13 +34,10 @@ class StringRepository {
 	}
 
 	fun get(module: Module, domain: Domain, stringName: String): List<ResourceString.Default> {
-		assertModule(module, domain)
-
-		val valuesDirectories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
+		val valuesDirectories = fileDataSource.getResourceDirectories(module, domain)
 
 		return valuesDirectories.map { directory ->
-			val stringFileName = domain.getStringFileName()
-			val stringsFile = getFileFromDirectory(directory, stringFileName) { it.name == stringFileName }
+			val stringsFile = fileDataSource.getStringFile(directory, domain)
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
 			ResourceString.Default(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
@@ -67,13 +58,11 @@ class StringRepository {
 	}
 
 	fun write(module: Module, domain: Domain, strings: List<ResourceString.Default>) {
-		assertModule(module, domain)
+		val directories = fileDataSource.getResourceDirectories(module, domain)
 
-		val directories = getResourcesDirectories(module) { it.name in domain.getResourcesPackageList().map(ResourcesPackage::packageName) }
-
+		// TODO: Избавиться от абобы
 		directories.forEach { directory ->
-			val stringFileName = domain.getStringFileName()
-			val stringsFile = getFileFromDirectory(directory, stringFileName) { it.name == stringFileName }
+			val stringsFile = fileDataSource.getStringFile(directory, domain)
 			val string = strings.find { it.locale.getPackage(domain).packageName == directory.name } ?: error("ABOBA")
 			writeStringInFile(stringsFile, string)
 		}
@@ -81,7 +70,7 @@ class StringRepository {
 
 	/** Данный метод предназначен для сортировки строк в модуле */
 	fun sort(module: Module) {
-		val directories = getResourcesDirectories(module) { it.name.contains("values") }
+		val directories = fileDataSource.getResourceDirectories(module)
 		val domains = Domain.values()
 
 		val domainsStrings = domains.associateWith { getStringFilesForDomain(directories, it) }
@@ -100,7 +89,7 @@ class StringRepository {
 	private fun getStringFilesForDomain(directories: List<File>, domain: Domain): List<File> =
 		directories.mapNotNull { directory ->
 			runCatching {
-				getFileFromDirectory(directory, "string") { it.name == domain.getStringFileName() }
+				fileDataSource.getStringFile(directory, domain)
 			}.getOrNull()
 		}
 
@@ -119,38 +108,4 @@ class StringRepository {
 			file.writeText(XmlTemplate.resourceFileTemplateDefault(defaultsList.sortedBy { it.name }, pluralsList.sortedBy { it.name }))
 		}
 	}
-
-	private fun getResourcesDirectories(module: Module, directoryFilterPredicate: (File) -> Boolean): List<File> {
-		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
-		val resDirectoryPath = path + DirectoryPath.RES_DIRECTORY
-		val directories = File(resDirectoryPath)
-			.walk()
-			.filter { it.isDirectory && directoryFilterPredicate(it) }
-			.toList()
-
-		return directories
-	}
-
-	private fun assertModule(module: Module, domain: Domain) {
-		val path = module.externalProjectPath ?: error("Invalid module path: ${module.externalProjectPath}")
-		val resDirectoryPath = path + DirectoryPath.RES_DIRECTORY
-		val stringsFiles = File(resDirectoryPath)
-			.walk()
-			.filter { it.isFile && it.name.contains("strings") && it.name != "strings_untranslatable.xml" }
-			.toList()
-		val domainStringsFiles = stringsFiles.filter { it.name == domain.getStringFileName() }
-
-		val errorText = when {
-			stringsFiles.isEmpty()                                          -> "No strings in module ${module.name}"
-			domainStringsFiles.size < domain.getResourcesPackageList().size -> "Not enough resources packages for domain ${domain.name}"
-			else                                                            -> null
-		}
-		errorText?.let { throw StringFileException(it) }
-	}
-
-	private fun getFileFromDirectory(directory: File, fileName: String, filePredicate: (File) -> Boolean): File =
-		directory
-			.walk()
-			.find { it.isFile && filePredicate(it) }
-			?: throw IllegalArgumentException("No $fileName file in directory ${directory.absolutePath}")
 }

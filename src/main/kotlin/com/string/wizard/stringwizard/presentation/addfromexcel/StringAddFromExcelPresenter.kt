@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ExcelString
 import com.string.wizard.stringwizard.data.entity.Locale
-import com.string.wizard.stringwizard.data.exception.StringFileException
+import com.string.wizard.stringwizard.data.exception.NotEnoughStringFilesException
 import com.string.wizard.stringwizard.data.util.getDefaultLocale
 import com.string.wizard.stringwizard.data.util.getLocales
 import com.string.wizard.stringwizard.domain.addfromexcel.interactor.StringAddFromExcelInteractor
@@ -84,8 +84,8 @@ class StringAddFromExcelPresenter(private val ui: StringAddFromExcelUi, project:
 			interactor.writeStrings(excelStrings, domain, newStringName, selectedModule)
 			ui.setAttentionText("Success!", AttentionTextState.SUCCESS)
 			ui.setCreateFilesButtonVisible(false)
-		} catch (e: StringFileException) {
-			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)
+		} catch (error: NotEnoughStringFilesException) {
+			ui.setAttentionText(error.message, AttentionTextState.ERROR)
 			ui.setCreateFilesButtonVisible(true)
 		} catch (e: Exception) {
 			ui.setAttentionText(e.message ?: "Unknown exception", AttentionTextState.ERROR)

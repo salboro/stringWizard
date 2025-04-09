@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourceString
-import com.string.wizard.stringwizard.data.exception.StringFileException
+import com.string.wizard.stringwizard.data.exception.NotEnoughStringFilesException
 import com.string.wizard.stringwizard.domain.stringcopy.interactor.StringCopyInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialogUi
@@ -94,7 +94,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 					newStringName
 				)
 				ui.setCreateFilesButtonVisible(false)
-			} catch (e: StringFileException) {
+			} catch (e: NotEnoughStringFilesException) {
 				ui.showCopyFailed(e)
 				ui.setCreateFilesButtonVisible(true)
 			} catch (e: Exception) {
