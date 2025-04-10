@@ -40,20 +40,7 @@ class StringRepository {
 			val stringsFile = fileDataSource.getStringFile(directory, domain)
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
-			ResourceString.Default(name = stringName, value = getStringValue(stringsFile, stringName), locale = locale)
-		}
-	}
-
-	private fun getStringValue(file: File, stringName: String): String {
-		val stringPrefix = "<string name=\"$stringName\">"
-		val fileText = file.readText()
-
-		return if (fileText.contains(stringPrefix)) {
-			fileText
-				.substringAfter(stringPrefix)
-				.substringBefore("</string>")
-		} else {
-			throw IllegalArgumentException("File ${file.path} does not have string $stringName")
+			(stringDataSource.get(stringsFile, locale, stringName) as? ResourceString.Default) ?: TODO("Поддержать плюралсы")
 		}
 	}
 

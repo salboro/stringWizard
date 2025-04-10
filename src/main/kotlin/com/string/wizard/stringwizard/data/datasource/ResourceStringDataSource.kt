@@ -3,6 +3,7 @@ package com.string.wizard.stringwizard.data.datasource
 import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.PluralItem
 import com.string.wizard.stringwizard.data.entity.ResourceString
+import com.string.wizard.stringwizard.data.exception.StringNotExistException
 import com.string.wizard.stringwizard.data.util.map
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
@@ -54,6 +55,24 @@ class ResourceStringDataSource {
 		val pluralsNodes = document.getElementsByTagName(PLURALS)
 
 		return pluralsNodes.getPluralsList(locale)
+	}
+
+	/**
+	 * Метод для получения строки
+	 *
+	 * @param file файл, в котором будет происходить поиск строки
+	 * @param locale локаль строки
+	 * @param name имя строки
+	 * @throws StringNotExistException если такой строки нет в указанном файле
+	 */
+	fun get(file: File, locale: Locale, name: String): ResourceString {
+		val document = documentBuilder.parse(file)
+		val stringNodes = document.getElementsByTagName(STRING)
+		val pluralsNodes = document.getElementsByTagName(PLURALS)
+
+		return stringNodes.getStringsList(locale).find { it.name == name }
+			?: pluralsNodes.getPluralsList(locale).find { it.name == name }
+			?: throw StringNotExistException("File ${file.path} does not have string $name")
 	}
 
 	private fun NodeList.getStringsList(locale: Locale): List<ResourceString.Default> =
