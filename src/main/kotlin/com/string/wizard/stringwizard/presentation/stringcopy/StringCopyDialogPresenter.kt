@@ -3,9 +3,9 @@ package com.string.wizard.stringwizard.presentation.stringcopy
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.string.wizard.stringwizard.data.entity.Domain
-import com.string.wizard.stringwizard.data.entity.Locale
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.exception.NotEnoughStringFilesException
+import com.string.wizard.stringwizard.data.util.getFirstValue
 import com.string.wizard.stringwizard.domain.stringcopy.interactor.StringCopyInteractor
 import com.string.wizard.stringwizard.ui.ButtonState
 import com.string.wizard.stringwizard.ui.stringcopy.StringCopyDialogUi
@@ -21,7 +21,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	private var selectedSourceModule: Module? = null
 	private var selectedTargetModule: Module? = null
 
-	private var selectedString: ResourceString.Default? = null
+	private var selectedString: ResourceString? = null
 	private var domain = Domain.DP
 
 	fun onModulesChooserClick() {
@@ -56,7 +56,7 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 	fun onStringSelectionClick() {
 		try {
 			val module = selectedSourceModule ?: error("Choose source module first!")
-			val strings = interactor.getBaseStrings(module, domain).filterIsInstance<ResourceString.Default>()
+			val strings = interactor.getBaseStrings(module, domain)
 
 			ui.showSourceStringSelector(strings)
 			ui.hideStringSelectionFailed()
@@ -65,10 +65,16 @@ class StringCopyDialogPresenter(private val ui: StringCopyDialogUi, project: Pro
 		}
 	}
 
-	fun selectString(string: ResourceString.Default) {
+	fun selectString(string: ResourceString) {
 		selectedString = string
-
-		ui.changeSourceStringButton(formatResourceString(string.name, string.value, string.locale ?: Locale.RU), ButtonState.FILLED)
+		val stringValue = when (string) {
+			is ResourceString.Default -> string.value
+			is ResourceString.Plural  -> string.getFirstValue()
+		}
+		ui.changeSourceStringButton(
+			formatResourceString(string.name, stringValue, string.locale, plurals = string is ResourceString.Plural),
+			ButtonState.FILLED
+		)
 		ui.changeNewStringName(string.name)
 
 		if (selectedTargetModule != null) {

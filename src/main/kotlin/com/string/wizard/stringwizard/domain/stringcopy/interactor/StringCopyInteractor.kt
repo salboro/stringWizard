@@ -17,9 +17,15 @@ class StringCopyInteractor {
 
 	fun copyString(sourceModule: Module, targetModule: Module, sourceStringName: String, targetStringName: String, domain: Domain) {
 		val sourceStrings = stringRepository.get(sourceModule, domain, sourceStringName)
-		val stringsWithNewName = sourceStrings.map { it.copy(name = targetStringName) }
+		val stringsWithNewName = sourceStrings.map { it.changeName(targetStringName) }
 		stringRepository.write(targetModule, domain, stringsWithNewName)
 	}
+
+	private fun ResourceString.changeName(newName: String): ResourceString =
+		when (this) {
+			is ResourceString.Default -> copy(name = newName)
+			is ResourceString.Plural  -> copy(name = newName)
+		}
 
 	fun createStringFiles(module: Module, domain: Domain) {
 		resourceRepository.createStringFiles(module, domain)

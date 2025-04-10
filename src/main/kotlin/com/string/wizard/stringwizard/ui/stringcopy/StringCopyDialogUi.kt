@@ -14,7 +14,7 @@ interface StringCopyDialogUi {
 
 	fun changeTargetModuleButton(text: String, state: ButtonState)
 
-	fun showSourceStringSelector(strings: List<ResourceString.Default>)
+	fun showSourceStringSelector(strings: List<ResourceString>)
 
 	fun changeSourceStringButton(text: String, state: ButtonState)
 

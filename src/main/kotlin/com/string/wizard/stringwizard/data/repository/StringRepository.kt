@@ -6,7 +6,7 @@ import com.string.wizard.stringwizard.data.datasource.ResourceStringDataSource
 import com.string.wizard.stringwizard.data.entity.Domain
 import com.string.wizard.stringwizard.data.entity.ResourceString
 import com.string.wizard.stringwizard.data.entity.ResourcesPackage
-import com.string.wizard.stringwizard.data.util.XmlTemplate
+import com.string.wizard.stringwizard.data.exception.StringDuplicateException
 import com.string.wizard.stringwizard.data.util.getLocale
 import com.string.wizard.stringwizard.data.util.getPackage
 import java.io.File
@@ -29,22 +29,23 @@ class StringRepository {
 			?: throw IllegalArgumentException("Unexpected directory locale: ${stringsFile.absolutePath}")
 
 		val defaults = stringDataSource.getDefaults(stringsFile, locale).sortedBy { it.name }
+		val plurals = stringDataSource.getPlurals(stringsFile, locale).sortedBy { it.name }
 
-		return defaults
+		return defaults + plurals
 	}
 
-	fun get(module: Module, domain: Domain, stringName: String): List<ResourceString.Default> {
+	fun get(module: Module, domain: Domain, stringName: String): List<ResourceString> {
 		val valuesDirectories = fileDataSource.getResourceDirectories(module, domain)
 
 		return valuesDirectories.map { directory ->
 			val stringsFile = fileDataSource.getStringFile(directory, domain)
 			val locale = ResourcesPackage.findByPackageName(directory.name)?.getLocale(domain)
 				?: throw IllegalArgumentException("Unexpected directory locale: ${directory.absolutePath}")
-			(stringDataSource.get(stringsFile, locale, stringName) as? ResourceString.Default) ?: TODO("Поддержать плюралсы")
+			stringDataSource.get(stringsFile, locale, stringName)
 		}
 	}
 
-	fun write(module: Module, domain: Domain, strings: List<ResourceString.Default>) {
+	fun write(module: Module, domain: Domain, strings: List<ResourceString>) {
 		val directories = fileDataSource.getResourceDirectories(module, domain)
 
 		// TODO: Избавиться от абобы
@@ -85,14 +86,15 @@ class StringRepository {
 		val pluralsList = stringDataSource.getPlurals(file, string.locale).toMutableList()
 
 		if (defaultsList.any { it.name == string.name } || pluralsList.any { it.name == string.name }) {
-			throw IllegalArgumentException("${string.name} already exist in ${file.path}")
+			throw StringDuplicateException("${string.name} already exist in ${file.path}")
 		} else {
 			when (string) {
 				is ResourceString.Default -> defaultsList.add(string)
 				is ResourceString.Plural  -> pluralsList.add(string)
 			}
-
-			file.writeText(XmlTemplate.resourceFileTemplateDefault(defaultsList.sortedBy { it.name }, pluralsList.sortedBy { it.name }))
 		}
+
+		val sortedStrings = defaultsList.sortedBy { it.name } + pluralsList.sortedBy { it.name }
+		stringDataSource.write(file, sortedStrings)
 	}
 }

@@ -246,11 +246,11 @@ class StringCopyDialog(
 		sourceModuleButton.changeModuleButton(text, state)
 	}
 
-	override fun showSourceStringSelector(strings: List<ResourceString.Default>) {
+	override fun showSourceStringSelector(strings: List<ResourceString>) {
 		createStringSelectorDialog(strings).show()
 	}
 
-	private fun createStringSelectorDialog(strings: List<ResourceString.Default>): SearchableListDialog<ResourceString.Default> =
+	private fun createStringSelectorDialog(strings: List<ResourceString>): SearchableListDialog<ResourceString> =
 		SearchableListDialog(
 			parent = dialogPanel,
 			label = STRING_SELECTOR_TITLE,
