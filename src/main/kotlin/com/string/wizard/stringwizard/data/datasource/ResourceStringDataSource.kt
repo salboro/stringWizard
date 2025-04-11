@@ -44,14 +44,22 @@ class ResourceStringDataSource {
 	private val startSpacesRegex = Regex("^\\s+", RegexOption.MULTILINE)
 
 	fun getDefaults(file: File, locale: Locale): List<ResourceString.Default> {
-		val document = documentBuilder.parse(file)
+		val document = try {
+			documentBuilder.parse(file)
+		} catch (e: Exception) {
+			return emptyList()
+		}
 		val stringNodes = document.getElementsByTagName(STRING)
 
 		return stringNodes.getStringsList(locale)
 	}
 
 	fun getPlurals(file: File, locale: Locale): List<ResourceString.Plural> {
-		val document = documentBuilder.parse(file)
+		val document = try {
+			documentBuilder.parse(file)
+		} catch (e: Exception) {
+			return emptyList()
+		}
 		val pluralsNodes = document.getElementsByTagName(PLURALS)
 
 		return pluralsNodes.getPluralsList(locale)
