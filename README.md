@@ -73,7 +73,3 @@ This plugin was developed using the IntelliJ Platform SDK. The following librari
 - Apache POI for Excel file processing.
 
 To build and modify the plugin, clone this repository and open it in IntelliJ IDEA with the Plugin Development SDK configured.
-
-## Contribution
-
-Contributions are welcome! If you encounter any bugs or have feature requests, please open an issue or submit a pull request. 😊
